@@ -1,0 +1,24 @@
+# Este es el archivo EditorConfig principal.
+# Ayuda a mantener un estilo de código consistente en diferentes editores e IDEs.
+# Para más información: https://editorconfig.org
+
+root = true
+
+# Reglas para todos los archivos del proyecto
+[*]
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Reglas específicas para archivos de Kotlin (.kt y .kts)
+# Sigue las convenciones de estilo oficiales de Kotlin.
+[*.{kt,kts}]
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# Reglas específicas para archivos XML (layouts, manifiesto, etc.)
+[*.xml]
+indent_style = space
+indent_size = 4

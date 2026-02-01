@@ -1,0 +1,30 @@
+# Android Studio / IntelliJ
+.idea/
+*.iml
+
+# Build output
+/build/
+/captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+*.hprof
+*.prof
+*.snapshot
+
+# Gradle
+.gradle/
+local.properties
+
+# Secrets & sensitive information
+*.jks
+*.keystore
+
+# Native Build
+.cxx/
+.externalNativeBuild/
+
+# OS-specific
+.DS_Store
