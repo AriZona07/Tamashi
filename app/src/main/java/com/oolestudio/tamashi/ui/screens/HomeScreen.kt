@@ -120,7 +120,7 @@ private fun PlaylistListScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        homeViewModel.deletePlaylistById(playlist.id)
+                        homeViewModel.deletePlaylist(playlist.id)
                         playlistToDelete = null
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)

@@ -3,7 +3,7 @@ package com.oolestudio.tamashi.data
 /**
  * Representa un único objetivo o tarea dentro de una playlist.
  *
- * @param id El ID único del documento en Firestore.
+ * @param id El ID único del objetivo.
  * @param name El nombre del objetivo (ej. "Tomar agua").
  * @param description Una descripción opcional para el objetivo.
  * @param completed Si el objetivo ha sido marcado como completado o no.

@@ -1,80 +1,95 @@
 package com.oolestudio.tamashi.viewmodel
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.oolestudio.tamashi.data.Objective
 import com.oolestudio.tamashi.data.Playlist
 import com.oolestudio.tamashi.data.PlaylistRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel principal para la pantalla de Inicio (Home).
- * Gestiona la lista de Playlists y los Objetivos (tareas) asociados a la playlist seleccionada.
+ * ViewModel principal de la aplicación, encargado de la lógica de la pantalla de inicio.
+ *
+ * Gestiona el estado de la UI, incluyendo la lista de playlists y los objetivos de la playlist
+ * seleccionada. Interactúa con el [PlaylistRepository] para realizar operaciones de datos
+ * como crear, leer, actualizar y eliminar playlists y objetivos.
+ *
+ * @param playlistRepository El repositorio que proporciona acceso a los datos de playlists y objetivos.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class HomeViewModel(private val playlistRepository: PlaylistRepository) {
-    private val viewModelScope = CoroutineScope(Dispatchers.Main)
+class HomeViewModel(private val playlistRepository: PlaylistRepository) : ViewModel() {
 
-    // Flujo observable de todas las playlists del usuario.
+    /**
+     * Un flujo de estado que expone la lista de playlists del usuario.
+     * Se actualiza automáticamente cuando los datos subyacentes cambian.
+     */
     val playlists: StateFlow<List<Playlist>> = playlistRepository.getUserPlaylists()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(5000L), // Mantiene la suscripción activa por 5s después de que la UI se va.
             initialValue = emptyList()
         )
 
-    // Estado interno para saber qué playlist está seleccionada actualmente.
+    // Flujo interno para mantener el ID de la playlist que el usuario ha seleccionado.
     private val _selectedPlaylistId = MutableStateFlow<String?>(null)
-
-    // Flujo dinámico de objetivos.
-    // flatMapLatest observa _selectedPlaylistId. Cada vez que cambia el ID seleccionado,
-    // cancela la suscripción anterior y se suscribe al flujo de objetivos de la nueva playlist.
-    val objectives: Flow<List<Objective>> = _selectedPlaylistId.flatMapLatest { playlistId ->
-        if (playlistId == null) emptyFlow() else playlistRepository.getObjectivesForPlaylist(playlistId)
-    }
+    val selectedPlaylistId: StateFlow<String?> = _selectedPlaylistId.asStateFlow()
 
     /**
-     * Selecciona una playlist para ver sus objetivos.
+     * Un flujo que expone los objetivos de la playlist actualmente seleccionada.
+     *
+     * Utiliza `flatMapLatest` para reaccionar a los cambios en `_selectedPlaylistId`. Cuando el usuario
+     * selecciona una nueva playlist, cancela la suscripción al flujo de objetivos anterior y se suscribe
+     * al nuevo, asegurando que la UI siempre muestre los objetivos correctos.
      */
-    fun selectPlaylist(playlistId: String) {
+    val objectives: StateFlow<List<Objective>> = _selectedPlaylistId.flatMapLatest { playlistId ->
+        if (playlistId != null) {
+            playlistRepository.getObjectivesForPlaylist(playlistId)
+        } else {
+            emptyFlow() // Si no hay playlist seleccionada, emite una lista vacía.
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = emptyList()
+    )
+
+    /**
+     * Establece la playlist activa para mostrar sus objetivos.
+     */
+    fun selectPlaylist(playlistId: String?) {
         _selectedPlaylistId.value = playlistId
     }
 
-    suspend fun createPlaylist(name: String, category: String, colorHex: String): Playlist? {
-        return playlistRepository.createPlaylist(name, category, colorHex)
-    }
-
     /**
-     * Elimina la playlist actualmente seleccionada.
+     * Lanza una corutina para crear una nueva playlist a través del repositorio.
      */
-    fun deletePlaylist(onSuccess: () -> Unit) {
-        _selectedPlaylistId.value?.let { playlistId ->
-            viewModelScope.launch {
-                val result = playlistRepository.deletePlaylist(playlistId)
-                if (result.isSuccess) {
-                    onSuccess()
-                }
-            }
+    fun createPlaylist(name: String, category: String, colorHex: String) {
+        viewModelScope.launch {
+            playlistRepository.createPlaylist(name, category, colorHex)
         }
     }
 
     /**
-     * Elimina una playlist específica por su ID (usado desde la lista principal).
+     * Lanza una corutina para eliminar una playlist por su ID.
      */
-    fun deletePlaylistById(playlistId: String) {
+    fun deletePlaylist(playlistId: String) {
         viewModelScope.launch {
             playlistRepository.deletePlaylist(playlistId)
         }
     }
 
+    /**
+     * Lanza una corutina para añadir un nuevo objetivo a la playlist seleccionada.
+     */
     fun addObjective(name: String, description: String) {
         _selectedPlaylistId.value?.let { playlistId ->
             viewModelScope.launch {
@@ -83,6 +98,9 @@ class HomeViewModel(private val playlistRepository: PlaylistRepository) {
         }
     }
 
+    /**
+     * Lanza una corutina para actualizar los detalles de un objetivo.
+     */
     fun updateObjective(objectiveId: String, name: String, description: String) {
         _selectedPlaylistId.value?.let { playlistId ->
             viewModelScope.launch {
@@ -91,24 +109,24 @@ class HomeViewModel(private val playlistRepository: PlaylistRepository) {
         }
     }
 
-    fun deleteObjective(objectiveId: String, onSuccess: () -> Unit) {
-        _selectedPlaylistId.value?.let { playlistId ->
-            viewModelScope.launch {
-                val result = playlistRepository.deleteObjective(playlistId, objectiveId)
-                if (result.isSuccess) {
-                    onSuccess()
-                }
-            }
-        }
-    }
-
     /**
-     * Cambia el estado de completado de un objetivo (check/uncheck).
+     * Lanza una corutina para cambiar el estado de completado de un objetivo.
      */
     fun toggleObjectiveStatus(objective: Objective) {
         _selectedPlaylistId.value?.let { playlistId ->
             viewModelScope.launch {
                 playlistRepository.updateObjectiveStatus(playlistId, objective.id, !objective.completed)
+            }
+        }
+    }
+
+    /**
+     * Lanza una corutina para eliminar un objetivo.
+     */
+    fun deleteObjective(objectiveId: String) {
+        _selectedPlaylistId.value?.let { playlistId ->
+            viewModelScope.launch {
+                playlistRepository.deleteObjective(playlistId, objectiveId)
             }
         }
     }

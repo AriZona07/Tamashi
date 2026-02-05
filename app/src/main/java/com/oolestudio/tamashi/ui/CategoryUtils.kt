@@ -5,22 +5,27 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.SelfImprovement
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
- * Función de utilidad para obtener iconos basados en categorías.
- *
- * @param categoryName El nombre de la categoría (ej. "Salud Física").
- * @return El `ImageVector` del icono correspondiente de Material Design.
- *         Devuelve un icono por defecto (corazón) si la categoría no coincide con ninguna conocida.
+ * Este archivo contiene funciones de utilidad relacionadas con las categorías de las playlists.
  */
-@Composable
+
+/**
+ * Devuelve un icono de Material Design correspondiente al nombre de una categoría.
+ *
+ * Esta función mapea un nombre de categoría (como "Salud Física") a un [ImageVector]
+ * específico para ser usado en la interfaz de usuario.
+ *
+ * @param categoryName El nombre de la categoría.
+ * @return El [ImageVector] asociado a la categoría. Si la categoría no se reconoce,
+ *         devuelve un icono por defecto (un corazón) para asegurar que la UI no falle.
+ */
 fun getIconForCategory(categoryName: String): ImageVector {
     return when (categoryName) {
         "Salud Física" -> Icons.Default.FitnessCenter
         "Salud Mental" -> Icons.Default.SelfImprovement
         "Académico" -> Icons.Default.School
-        else -> Icons.Default.FavoriteBorder // Icono por defecto (fallback)
+        else -> Icons.Default.FavoriteBorder // Icono por defecto para categorías no reconocidas
     }
 }
