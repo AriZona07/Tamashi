@@ -8,18 +8,20 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 
 /**
- * Un Checkbox personalizado construido con iconos para un control visual total.
- * Se usa en las listas de objetivos para marcar tareas como completadas.
+ * Un componente de checkbox personalizado que utiliza iconos de Material Design.
  *
- * @param checked El estado actual (marcado o no).
- * @param onCheckedChange La función lambda que se llama cuando el usuario hace clic en el icono.
+ * Se emplea en la lista de objetivos para permitir al usuario marcar una tarea como completada o pendiente.
+ * El uso de `IconButton` como contenedor proporciona una zona de pulsación más grande y una respuesta
+ * visual al tacto (efecto "ripple").
+ *
+ * @param checked El estado actual del checkbox (true si está marcado, false si no).
+ * @param onCheckedChange Una función lambda que se invoca cuando el usuario pulsa el checkbox.
  */
 @Composable
 fun CustomCheckbox(
     checked: Boolean,
     onCheckedChange: () -> Unit
 ) {
-    // Usamos un IconButton para darle un área de clic más grande y una respuesta visual (ripple effect).
     IconButton(onClick = onCheckedChange) {
         if (checked) {
             Icon(
