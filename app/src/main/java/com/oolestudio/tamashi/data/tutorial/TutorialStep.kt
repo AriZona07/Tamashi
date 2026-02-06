@@ -2,7 +2,7 @@ package com.oolestudio.tamashi.data.tutorial
 
 data class TutorialStep(
     val id: String,
-    val tamashiName: String = "bublu",
+    val tamashiName: String = "Bublu",
     val text: String,
     val assetName: String? = null,
     val dismissible: Boolean = true,

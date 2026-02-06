@@ -46,6 +46,7 @@ import com.oolestudio.tamashi.viewmodel.HomeViewModel
 import com.oolestudio.tamashi.viewmodel.tutorial.TutorialViewModel
 import com.oolestudio.tamashi.data.tutorial.TutorialRepositoryImpl
 import com.oolestudio.tamashi.data.tutorial.TutorialStep
+import com.oolestudio.tamashi.util.tutorial.TutorialConfig
 
 // Sealed class para manejar la navegación interna dentro de la pestaña de Inicio (Home).
 // Permite cambiar entre la lista de playlists, la creación de una nueva y el detalle de una existente.
@@ -82,21 +83,34 @@ fun HomeScreen(homeViewModel: HomeViewModel, modifier: Modifier = Modifier) {
                     currentScreen = HomeScreenNav.Detail(playlist)
                 },
                 modifier = modifier,
-                // Callback para iniciar tutorial desde la lista si corresponde
                 onStartTutorial = {
                     val steps = listOf(
                         com.oolestudio.tamashi.data.tutorial.TutorialStep(
                             id = "step1",
-                            tamashiName = "bublu",
-                            text = "Te enseñaré a crear tu primera playlist",
-                            assetName = "asset_tamashi_bublu",
+                            tamashiName = TutorialConfig.tamashiName,
+                            text = "Para crear una nueva playlist debes utilizar el botón de abajo \"Nueva Playlist\"",
+                            assetName = TutorialConfig.tamashiAssetName,
                             nextStepId = "step2"
                         ),
                         com.oolestudio.tamashi.data.tutorial.TutorialStep(
                             id = "step2",
-                            tamashiName = "bublu",
-                            text = "Toca el botón Nueva Playlist para comenzar",
-                            assetName = "asset_tamashi_bublu",
+                            tamashiName = TutorialConfig.tamashiName,
+                            text = "Listo, ahora ponle un nombre a tu playlist, por ejemplo: \"Ejercicio\", \"Yoga\", o \"Estudiar\"",
+                            assetName = TutorialConfig.tamashiAssetName,
+                            nextStepId = "step3"
+                        ),
+                        com.oolestudio.tamashi.data.tutorial.TutorialStep(
+                            id = "step3",
+                            tamashiName = TutorialConfig.tamashiName,
+                            text = "Después selecciona la categoría, por ejemplo, si tu playlist se llama \"Ejercicio\" ponla en \"Salud Física\"",
+                            assetName = TutorialConfig.tamashiAssetName,
+                            nextStepId = "step4"
+                        ),
+                        com.oolestudio.tamashi.data.tutorial.TutorialStep(
+                            id = "step4",
+                            tamashiName = TutorialConfig.tamashiName,
+                            text = "Ahora escoge tu color favorito para que tu playlist se pinte de ese color, y dale a \"Crear\" arriba a la derecha",
+                            assetName = TutorialConfig.tamashiAssetName,
                             nextStepId = null
                         )
                     )
@@ -108,8 +122,15 @@ fun HomeScreen(homeViewModel: HomeViewModel, modifier: Modifier = Modifier) {
                     )
                 }
             )
-            // Overlay persistente del tutorial (se renderiza como un overlay por encima)
-            TutorialOverlay(viewModel = tutorialViewModel)
+            // Overlay persistente del tutorial: si termina el paso 1 (animación), navegamos a Create
+            TutorialOverlay(
+                viewModel = tutorialViewModel,
+                onStepCompleted = { stepId ->
+                    if (stepId == "step1") {
+                        currentScreen = HomeScreenNav.Create
+                    }
+                }
+            )
         }
         is HomeScreenNav.Create -> {
             CreatePlaylistScreen(
