@@ -143,8 +143,10 @@ fun HomeScreen(homeViewModel: HomeViewModel, modifier: Modifier = Modifier) {
                     homeViewModel.createPlaylist(playlistName, category, colorHex)
                     currentScreen = HomeScreenNav.List
                 },
-                onBack = { currentScreen = HomeScreenNav.List }
+                onBack = { currentScreen = HomeScreenNav.List },
+                tutorialViewModel = tutorialViewModel
             )
+            TutorialOverlay(viewModel = tutorialViewModel)
         }
         is HomeScreenNav.Detail -> {
             PlaylistDetailScreen(

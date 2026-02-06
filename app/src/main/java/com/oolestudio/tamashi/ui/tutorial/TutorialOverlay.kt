@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -65,7 +66,8 @@ fun TutorialOverlay(
     }
 
     AnimatedVisibility(visible = ui.visible, enter = fadeIn(), exit = fadeOut()) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        // Usar el modifier con padding del Scaffold para respetar la barra inferior
+        Box(modifier = modifier.fillMaxSize()) {
             // Avatar en esquina inferior derecha
             Box(modifier = Modifier.align(Alignment.BottomEnd)) {
                 Column(horizontalAlignment = Alignment.End) {

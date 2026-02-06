@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.oolestudio.tamashi.viewmodel.tutorial.TutorialViewModel
 
 // Modelo de datos interno para las categorías disponibles en la UI.
 private data class Category(val name: String, val icon: ImageVector)
@@ -69,13 +71,17 @@ private val colorOptions = listOf(
 @Composable
 fun CreatePlaylistScreen(
     onCreatePlaylist: (name: String, category: String, colorHex: String) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    tutorialViewModel: TutorialViewModel? = null
 ) {
     // Estados del formulario.
     var playlistName by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
     var selectedColor by remember { mutableStateOf(colorOptions.first()) } // Color por defecto: Blanco
     var error by remember { mutableStateOf<String?>(null) }
+
+    // Tutorial: paso actual para decidir resaltados
+    val tutorialStepId = tutorialViewModel?.uiState?.collectAsState()?.value?.step?.id
 
     Scaffold(
         topBar = {
@@ -111,25 +117,33 @@ fun CreatePlaylistScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            OutlinedTextField(
-                value = playlistName,
-                onValueChange = { playlistName = it; error = null },
-                label = { Text("Nombre de la playlist") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = error != null && playlistName.isBlank()
-            )
+            // Nombre: resaltar en step2
+            val nameHighlight = tutorialStepId == "step2"
+            Column(
+                modifier = if (nameHighlight) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp)).padding(8.dp) else Modifier
+            ) {
+                OutlinedTextField(
+                    value = playlistName,
+                    onValueChange = { playlistName = it; error = null },
+                    label = { Text("Nombre de la playlist") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = error != null && playlistName.isBlank()
+                )
+            }
 
-            // Componente personalizado para seleccionar categoría.
+            // Categoría: resaltar en step3
             CategorySelector(
                 selectedCategory = selectedCategory,
                 onCategorySelected = { selectedCategory = it; error = null },
-                isError = error != null && selectedCategory == null
+                isError = error != null && selectedCategory == null,
+                highlight = tutorialStepId == "step3"
             )
 
-            // Componente personalizado para seleccionar color.
+            // Color: resaltar en step4
             ColorSelector(
                 selectedColor = selectedColor,
-                onColorSelected = { selectedColor = it }
+                onColorSelected = { selectedColor = it },
+                highlight = tutorialStepId == "step4"
             )
 
             error?.let {
@@ -140,8 +154,10 @@ fun CreatePlaylistScreen(
 }
 
 @Composable
-private fun CategorySelector(selectedCategory: Category?, onCategorySelected: (Category) -> Unit, isError: Boolean) {
-    Column {
+private fun CategorySelector(selectedCategory: Category?, onCategorySelected: (Category) -> Unit, isError: Boolean, highlight: Boolean = false) {
+    Column(
+        modifier = if (highlight) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp)).padding(8.dp) else Modifier
+    ) {
         Text("Selecciona una categoría", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(16.dp))
         Row(
@@ -179,8 +195,10 @@ private fun CategoryItem(category: Category, isSelected: Boolean, borderColor: C
 }
 
 @Composable
-private fun ColorSelector(selectedColor: Color, onColorSelected: (Color) -> Unit) {
-    Column {
+private fun ColorSelector(selectedColor: Color, onColorSelected: (Color) -> Unit, highlight: Boolean = false) {
+    Column(
+        modifier = if (highlight) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp)).padding(8.dp) else Modifier
+    ) {
         Text("Elige un color", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(16.dp))
         Row(
