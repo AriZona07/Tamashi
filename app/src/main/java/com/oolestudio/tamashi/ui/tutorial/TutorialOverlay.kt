@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.oolestudio.tamashi.viewmodel.tutorial.TutorialViewModel
+import com.oolestudio.tamashi.util.tutorial.TutorialConfig
 import com.oolestudio.tamashi.util.tutorial.TutorialLayoutUtils
 import kotlinx.coroutines.delay
 
@@ -72,5 +73,47 @@ fun TutorialOverlay(
                 Spacer(modifier = Modifier.width(TutorialLayoutUtils.spacing))
             }
         }
+    }
+}
+
+@Composable
+fun TamashiMessageOverlay(
+    text: String,
+    modifier: Modifier = Modifier,
+    tamashiName: String = TutorialConfig.tamashiName,
+    tamashiAssetName: String = TutorialConfig.tamashiAssetName,
+    typewriter: Boolean = true,
+    onTap: (() -> Unit)? = null
+) {
+    var displayedText by remember(text) { mutableStateOf(if (typewriter) "" else text) }
+    var isAnimating by remember(text) { mutableStateOf(typewriter) }
+
+    LaunchedEffect(text, typewriter) {
+        if (typewriter) {
+            displayedText = ""
+            val chars = text.toCharArray()
+            for (c in chars) {
+                if (!isAnimating) break
+                displayedText += c
+                delay(22)
+            }
+            isAnimating = false
+        }
+    }
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(TutorialLayoutUtils.spacing),
+        modifier = modifier.clickable {
+            if (isAnimating) {
+                displayedText = text
+                isAnimating = false
+            } else {
+                onTap?.invoke()
+            }
+        }
+    ) {
+        TamashiAvatar(tamashiName = tamashiName, assetOverride = tamashiAssetName)
+        SpeechBubble(text = displayedText, modifier = Modifier.width(TutorialLayoutUtils.bubbleMaxWidth))
+        Spacer(modifier = Modifier.width(TutorialLayoutUtils.spacing))
     }
 }
