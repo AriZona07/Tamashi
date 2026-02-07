@@ -129,6 +129,7 @@ fun HomeScreen(homeViewModel: HomeViewModel, modifier: Modifier = Modifier) {
             // Overlay persistente del tutorial: si termina el paso 1 (animación), navegamos a Create
             TutorialOverlay(
                 viewModel = tutorialViewModel,
+                modifier = modifier,
                 onStepCompleted = { stepId ->
                     if (stepId == "step1") {
                         currentScreen = HomeScreenNav.Create
@@ -146,7 +147,8 @@ fun HomeScreen(homeViewModel: HomeViewModel, modifier: Modifier = Modifier) {
                 onBack = { currentScreen = HomeScreenNav.List },
                 tutorialViewModel = tutorialViewModel
             )
-            TutorialOverlay(viewModel = tutorialViewModel)
+            // Mostrar el overlay del tutorial también en la pantalla de creación, respetando innerPadding
+            TutorialOverlay(viewModel = tutorialViewModel, modifier = modifier)
         }
         is HomeScreenNav.Detail -> {
             PlaylistDetailScreen(
