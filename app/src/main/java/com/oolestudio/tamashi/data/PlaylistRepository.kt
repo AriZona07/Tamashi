@@ -52,4 +52,16 @@ interface PlaylistRepository {
      * Elimina un objetivo específico de una playlist.
      */
     suspend fun deleteObjective(playlistId: String, objectiveId: String): Result<Unit>
+
+    /**
+     * Obtiene el conteo total de objetivos en la base de datos.
+     * @return Un Flow que emite el número total de objetivos.
+     */
+    fun getTotalObjectivesCount(): Flow<Int>
+
+    /**
+     * Obtiene el conteo de objetivos completados en la base de datos.
+     * @return Un Flow que emite el número de objetivos completados.
+     */
+    fun getCompletedObjectivesCount(): Flow<Int>
 }

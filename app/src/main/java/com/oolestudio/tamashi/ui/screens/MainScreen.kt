@@ -12,6 +12,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +39,16 @@ fun MainScreen(homeViewModel: HomeViewModel) {
     // Estado para saber qué pestaña de la barra inferior está seleccionada.
     var currentScreen by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
 
+    // Observa si se debe mostrar la eclosión del Tamashi
+    val shouldShowHatching by homeViewModel.shouldShowHatching.collectAsState()
+
+    // Cuando shouldShowHatching cambia a true, navega al tab de Mascota
+    LaunchedEffect(shouldShowHatching) {
+        if (shouldShowHatching) {
+            currentScreen = BottomNavItem.Pet
+        }
+    }
+
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -56,7 +68,7 @@ fun MainScreen(homeViewModel: HomeViewModel) {
         // 'innerPadding' es importante para que el contenido no quede oculto detrás de la barra inferior.
         when (currentScreen) {
             BottomNavItem.Home -> HomeScreen(homeViewModel = homeViewModel, modifier = Modifier.padding(innerPadding))
-            BottomNavItem.Pet -> PetScreen(modifier = Modifier.padding(innerPadding))
+            BottomNavItem.Pet -> PetScreen(homeViewModel = homeViewModel, modifier = Modifier.padding(innerPadding))
             BottomNavItem.Calendar -> CalendarScreen(modifier = Modifier.padding(innerPadding))
             BottomNavItem.Settings -> SettingsScreen(modifier = Modifier.padding(innerPadding))
         }
