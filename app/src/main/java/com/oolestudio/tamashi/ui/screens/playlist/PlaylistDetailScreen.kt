@@ -1,6 +1,8 @@
 package com.oolestudio.tamashi.ui.screens.playlist
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,8 +38,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.oolestudio.tamashi.data.Objective
+import com.oolestudio.tamashi.data.tutorial.TutorialRepositoryImpl
+import com.oolestudio.tamashi.data.tutorial.TutorialStep
 import com.oolestudio.tamashi.ui.components.CustomCheckbox
+import com.oolestudio.tamashi.ui.tutorial.TutorialOverlay
+import com.oolestudio.tamashi.util.tutorial.TutorialConfig
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
+import com.oolestudio.tamashi.viewmodel.tutorial.TutorialViewModel
 
 // Sealed class para la navegación interna dentro del detalle de la playlist.
 // Permite ver la lista de objetivos, añadir uno nuevo o editar uno existente.
@@ -53,42 +62,51 @@ private sealed class PlaylistDetailNav {
 fun PlaylistDetailScreen(
     playlistName: String,
     viewModel: HomeViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var currentScreen by remember { mutableStateOf<PlaylistDetailNav>(PlaylistDetailNav.List) }
+    val tutorialViewModel = remember {
+        TutorialViewModel(TutorialRepositoryImpl())
+    }
 
-    when (val screen = currentScreen) {
-        is PlaylistDetailNav.List -> {
-            ObjectiveListScreen(
-                playlistName = playlistName,
-                viewModel = viewModel,
-                onBack = onBack,
-                onNavigateToAdd = { currentScreen = PlaylistDetailNav.Add },
-                onNavigateToEdit = { objective -> currentScreen = PlaylistDetailNav.Edit(objective) }
-            )
+    Box(modifier = modifier) {
+        when (val screen = currentScreen) {
+            is PlaylistDetailNav.List -> {
+                ObjectiveListScreen(
+                    playlistName = playlistName,
+                    viewModel = viewModel,
+                    onBack = onBack,
+                    onNavigateToAdd = { currentScreen = PlaylistDetailNav.Add },
+                    onNavigateToEdit = { objective -> currentScreen = PlaylistDetailNav.Edit(objective) },
+                    tutorialViewModel = tutorialViewModel
+                )
+            }
+            is PlaylistDetailNav.Add -> {
+                // Reutilizamos ObjectiveFormScreen para crear.
+                ObjectiveFormScreen(
+                    existingObjective = null,
+                    onSave = { name, description ->
+                        viewModel.addObjective(name, description)
+                        currentScreen = PlaylistDetailNav.List
+                    },
+                    onBack = { currentScreen = PlaylistDetailNav.List }
+                )
+            }
+            is PlaylistDetailNav.Edit -> {
+                // Reutilizamos ObjectiveFormScreen para editar.
+                ObjectiveFormScreen(
+                    existingObjective = screen.objective,
+                    onSave = { name, description ->
+                        viewModel.updateObjective(screen.objective.id, name, description)
+                        currentScreen = PlaylistDetailNav.List
+                    },
+                    onBack = { currentScreen = PlaylistDetailNav.List }
+                )
+            }
         }
-        is PlaylistDetailNav.Add -> {
-            // Reutilizamos ObjectiveFormScreen para crear.
-            ObjectiveFormScreen(
-                existingObjective = null,
-                onSave = { name, description ->
-                    viewModel.addObjective(name, description)
-                    currentScreen = PlaylistDetailNav.List
-                },
-                onBack = { currentScreen = PlaylistDetailNav.List }
-            )
-        }
-        is PlaylistDetailNav.Edit -> {
-            // Reutilizamos ObjectiveFormScreen para editar.
-            ObjectiveFormScreen(
-                existingObjective = screen.objective,
-                onSave = { name, description ->
-                    viewModel.updateObjective(screen.objective.id, name, description)
-                    currentScreen = PlaylistDetailNav.List
-                },
-                onBack = { currentScreen = PlaylistDetailNav.List }
-            )
-        }
+
+        TutorialOverlay(viewModel = tutorialViewModel)
     }
 }
 
@@ -99,7 +117,8 @@ private fun ObjectiveListScreen(
     viewModel: HomeViewModel,
     onBack: () -> Unit,
     onNavigateToAdd: () -> Unit,
-    onNavigateToEdit: (Objective) -> Unit
+    onNavigateToEdit: (Objective) -> Unit,
+    tutorialViewModel: TutorialViewModel
 ) {
     // Observamos la lista de objetivos en tiempo real.
     val objectives by viewModel.objectives.collectAsState(initial = emptyList())
@@ -117,16 +136,78 @@ private fun ObjectiveListScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
-            contentPadding = PaddingValues(16.dp)
+        if (objectives.isEmpty()) {
+            EmptyObjectivesScreen(
+                modifier = Modifier.padding(innerPadding),
+                onStartTutorial = {
+                    val steps = listOf(
+                        TutorialStep(
+                            id = "step1",
+                            tamashiName = TutorialConfig.tamashiName,
+                            text = "¡Esta playlist está vacía! Vamos a añadir nuestro primer objetivo.",
+                            assetName = TutorialConfig.tamashiAssetName,
+                            nextStepId = "step2"
+                        ),
+                        TutorialStep(
+                            id = "step2",
+                            tamashiName = TutorialConfig.tamashiName,
+                            text = "Usa el botón \"Nuevo Objetivo\" para empezar.",
+                            assetName = TutorialConfig.tamashiAssetName,
+                            nextStepId = null
+                        )
+                    )
+                    tutorialViewModel.reset()
+                    tutorialViewModel.loadTutorial(
+                        tutorialId = "objectives_tutorial",
+                        steps = steps,
+                        startStepId = "step1"
+                    )
+                },
+                viewModel = viewModel
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                items(objectives) { objective ->
+                    ObjectiveItem(
+                        objective = objective,
+                        onToggle = { viewModel.toggleObjectiveStatus(objective) },
+                        onEdit = { onNavigateToEdit(objective) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyObjectivesScreen(
+    modifier: Modifier = Modifier,
+    onStartTutorial: () -> Unit,
+    viewModel: HomeViewModel
+) {
+    val hasSeenTutorial by viewModel.hasSeenObjectiveTutorial.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (!hasSeenTutorial) {
+            onStartTutorial()
+            viewModel.setHasSeenObjectiveTutorial(true)
+        }
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(objectives) { objective ->
-                ObjectiveItem(
-                    objective = objective,
-                    onToggle = { viewModel.toggleObjectiveStatus(objective) },
-                    onEdit = { onNavigateToEdit(objective) }
-                )
+            Text("No hay objetivos en esta playlist.")
+            Button(onClick = onStartTutorial) {
+                Text("Aprender a crear un objetivo")
             }
         }
     }
@@ -153,7 +234,9 @@ private fun ObjectiveItem(
             // El nombre se tacha si la tarea está completada.
             Text(
                 text = objective.name,
-                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp),
                 textDecoration = if (objective.completed) TextDecoration.LineThrough else null,
                 color = if (objective.completed) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) else LocalContentColor.current
             )

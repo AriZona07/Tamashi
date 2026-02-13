@@ -28,3 +28,5 @@ local.properties
 
 # OS-specific
 .DS_Store
+/keystore.properties
+/app/debug/output-metadata.json

@@ -2,10 +2,12 @@ package com.oolestudio.tamashi
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.oolestudio.tamashi.data.Objective
 import com.oolestudio.tamashi.data.Playlist
 import com.oolestudio.tamashi.data.PlaylistRepository
+import com.oolestudio.tamashi.data.TamashiPreferencesRepository
 import com.oolestudio.tamashi.ui.screens.MainScreen
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
 import kotlinx.coroutines.flow.Flow
@@ -113,7 +115,10 @@ class FakePlaylistRepository : PlaylistRepository {
 @Preview
 fun AppPreview() {
     App(
-        homeViewModel = HomeViewModel(FakePlaylistRepository())
+        homeViewModel = HomeViewModel(
+            playlistRepository = FakePlaylistRepository(),
+            tamashiPrefsRepository = TamashiPreferencesRepository(LocalContext.current)
+        )
     )
 }
 
