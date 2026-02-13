@@ -12,6 +12,7 @@ private const val KEY_TAMASHI_ASSET = "selected_tamashi_asset"
 private const val KEY_TAMASHI_CHOSEN = "is_tamashi_chosen"
 private const val KEY_TAMASHI_XP = "tamashi_xp"
 private const val KEY_TAMASHI_HATCHED = "tamashi_hatched"
+private const val KEY_SEEN_OBJECTIVE_TUTORIAL = "seen_objective_tutorial"
 
 /**
  * Representa los niveles de evolución del Tamashi
@@ -104,6 +105,12 @@ class TamashiPreferencesRepository(context: Context) {
     private fun readXp(): Int = prefs.getInt(KEY_TAMASHI_XP, 0)
 
     private fun isHatched(): Boolean = prefs.getBoolean(KEY_TAMASHI_HATCHED, false)
+
+    fun hasSeenObjectiveTutorial(): Boolean = prefs.getBoolean(KEY_SEEN_OBJECTIVE_TUTORIAL, false)
+
+    suspend fun setHasSeenObjectiveTutorial(seen: Boolean) {
+        prefs.edit().putBoolean(KEY_SEEN_OBJECTIVE_TUTORIAL, seen).apply()
+    }
 
     suspend fun setTamashi(profile: TamashiProfile) {
         prefs.edit()

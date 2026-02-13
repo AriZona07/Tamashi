@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModel(
     private val playlistRepository: PlaylistRepository,
-    private val tamashiPrefsRepository: TamashiPreferencesRepository? = null
+    private val tamashiPrefsRepository: TamashiPreferencesRepository
 ) : ViewModel() {
 
     /**
@@ -50,6 +50,16 @@ class HomeViewModel(
     // Flujo interno para mantener el ID de la playlist que el usuario ha seleccionado.
     private val _selectedPlaylistId = MutableStateFlow<String?>(null)
     val selectedPlaylistId: StateFlow<String?> = _selectedPlaylistId.asStateFlow()
+
+    private val _hasSeenObjectiveTutorial = MutableStateFlow(tamashiPrefsRepository.hasSeenObjectiveTutorial())
+    val hasSeenObjectiveTutorial: StateFlow<Boolean> = _hasSeenObjectiveTutorial.asStateFlow()
+
+    fun setHasSeenObjectiveTutorial(seen: Boolean) {
+        viewModelScope.launch {
+            tamashiPrefsRepository.setHasSeenObjectiveTutorial(seen)
+            _hasSeenObjectiveTutorial.value = seen
+        }
+    }
 
     /**
      * Un flujo que expone los objetivos de la playlist actualmente seleccionada.
@@ -101,11 +111,11 @@ class HomeViewModel(
     val tamashiHasHatched: StateFlow<Boolean> = _tamashiHasHatched.asStateFlow()
 
     // Estado del XP del Tamashi
-    val tamashiXp: StateFlow<Int> = tamashiPrefsRepository?.flowXp()?.stateIn(
+    val tamashiXp: StateFlow<Int> = tamashiPrefsRepository.flowXp().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
         initialValue = 0
-    ) ?: MutableStateFlow(0)
+    )
 
     // Estado del nivel del Tamashi (calculado a partir del XP)
     val tamashiLevel: StateFlow<TamashiLevel> = tamashiXp.map { xp ->
@@ -213,7 +223,7 @@ class HomeViewModel(
                 playlistRepository.updateObjectiveStatus(playlistId, objective.id, willBeCompleted)
 
                 // Actualizar XP del Tamashi
-                tamashiPrefsRepository?.let { prefs ->
+                tamashiPrefsRepository.let { prefs ->
                     if (willBeCompleted) {
                         // Objetivo completado: agregar XP
                         val leveledUp = prefs.addXp(1)

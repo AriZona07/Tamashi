@@ -105,6 +105,10 @@ fun CreditsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 text = "Fondo del logotipo por unsplash.com",
                 url = "https://unsplash.com/"
             )
+            CreditLink(
+                text = "Ajolote animado por LottieFiles",
+                url = "https://lottiefiles.com/"
+            )
         }
     }
 }
