@@ -9,3 +9,5 @@
     @javax.annotation.Nonnull <fields>;
     @javax.annotation.Nonnull <methods>;
 }
+-dontwarn javax.annotation.Nullable
+-dontwarn okio.**
