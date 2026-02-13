@@ -127,4 +127,23 @@ class PlaylistRepositoryImpl : PlaylistRepository {
         objectiveFlow.update { objectives -> objectives.filterNot { it.id == objectiveId } }
         return Result.success(Unit)
     }
+
+    /**
+     * Devuelve un flujo con el conteo total de objetivos en todas las playlists.
+     */
+    override fun getTotalObjectivesCount(): Flow<Int> {
+        // Suma todos los objetivos de todas las playlists
+        val totalCount = _objectivesFlowMap.values.sumOf { it.value.size }
+        return MutableStateFlow(totalCount)
+    }
+
+    /**
+     * Devuelve un flujo con el conteo de objetivos completados en todas las playlists.
+     */
+    override fun getCompletedObjectivesCount(): Flow<Int> {
+        val completedCount = _objectivesFlowMap.values.sumOf { flow ->
+            flow.value.count { it.completed }
+        }
+        return MutableStateFlow(completedCount)
+    }
 }

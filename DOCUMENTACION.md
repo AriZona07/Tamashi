@@ -6,7 +6,7 @@ El proyecto sigue una arquitectura moderna de desarrollo de Android, basada en l
 
 *   **MVVM (Model-View-ViewModel)**: La lógica de la interfaz de usuario (UI) está separada de la lógica de negocio. Las vistas (Compose) observan los datos de los ViewModels y reaccionan a los cambios.
 *   **Inyección de Dependencias (Manual)**: Los ViewModels y otras clases reciben sus dependencias (como los Repositorios) a través de sus constructores. Esto facilita las pruebas y el desacoplamiento.
-*   **Repositorio (Repository Pattern)**: Se utiliza un repositorio para abstraer el origen de los datos. La aplicación utiliza una implementación de repositorio en memoria (`PlaylistRepositoryImpl`) que simula una base de datos local. Esto permite que el resto de la aplicación no necesite saber *cómo* se obtienen o guardan los datos.
+*   **Repositorio (Repository Pattern)**: Se utiliza un repositorio para abstraer el origen de los datos. La aplicación utiliza **Room Database** (`RoomPlaylistRepository`) para persistir playlists y objetivos localmente. Esto permite que el resto de la aplicación no necesite saber *cómo* se obtienen o guardan los datos.
 *   **UI Declarativa con Jetpack Compose**: Toda la interfaz de usuario está construida con Jetpack Compose, lo que permite crear vistas de forma más rápida y con menos código.
 
 ## 2. Componentes Principales
@@ -19,6 +19,19 @@ Incluye la persistencia de selección de Tamashi mediante `TamashiPreferencesRep
 - `is_tamashi_chosen`
 
 Provee flujos `flowSelectedTamashi()` y `flowIsTamashiChosen()` para sincronizar configuración global (`TutorialConfig`) y gating de arranque.
+
+#### Base de Datos Local (`/data/local`)
+
+La persistencia de playlists y objetivos se realiza mediante **Room Database**:
+
+- **`TamashiDatabase.kt`**: Clase principal de la base de datos Room (Singleton).
+- **`PlaylistEntity.kt`**: Entidad que representa una playlist en la BD.
+- **`ObjectiveEntity.kt`**: Entidad que representa un objetivo/tarea (con ForeignKey a playlist).
+- **`PlaylistDao.kt`**: DAO con operaciones CRUD para playlists.
+- **`ObjectiveDao.kt`**: DAO con operaciones CRUD para objetivos.
+- **`RoomPlaylistRepository.kt`**: Implementación de `PlaylistRepository` que usa Room.
+
+Las playlists y objetivos se persisten automáticamente y sobreviven al cierre de la app.
 
 ### 2.2. Capa de Lógica (`/viewmodel`)
 
@@ -47,9 +60,15 @@ Overlay reutilizable para tutoriales:
 Globo de texto con estilos por defecto y soporte de “cola” triangular apuntando al Tamashi. Parámetros para personalizar tamaño y desplazamiento.
 
 #### `HomeScreen.kt`
-Capa 1: Botón centrado “Aprender a Agregar una Playlist” cuando no hay playlists.
-Capa 2: FAB “+ Nueva Playlist” cuando hay playlists.
+Capa 1: Botón centrado "Aprender a Agregar una Playlist" cuando no hay playlists.
+Capa 2: FAB "+ Nueva Playlist" cuando hay playlists.
 Capa 3: Overlay de tutorial por encima (cuando visible).
+
+#### `PetScreen.kt`
+Pantalla principal del Tamashi con animación Lottie:
+- Muestra animación del Tamashi usando **Lottie Compose** (archivo JSON en `/res/raw/`).
+- Animación en loop infinito con `LottieConstants.IterateForever`.
+- Mensaje de bienvenida y motivación debajo de la animación.
 
 ### 2.4. Utilidades (`/util`)
 

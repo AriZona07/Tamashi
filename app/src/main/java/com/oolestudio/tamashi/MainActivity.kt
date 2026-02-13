@@ -5,8 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.oolestudio.tamashi.data.PlaylistRepositoryImpl
 import com.oolestudio.tamashi.data.TamashiPreferencesRepository
+import com.oolestudio.tamashi.data.local.RoomPlaylistRepository
+import com.oolestudio.tamashi.data.local.TamashiDatabase
 import com.oolestudio.tamashi.ui.screens.MainScreen
 import com.oolestudio.tamashi.ui.screens.TamashiSelectionScreen
 import com.oolestudio.tamashi.util.tutorial.TutorialConfig
@@ -15,11 +16,22 @@ import com.oolestudio.tamashi.viewmodel.TamashiSelectionViewModel
 
 class MainActivity : ComponentActivity() {
 
-    // Instanciamos el repositorio local
-    private val playlistRepository by lazy { PlaylistRepositoryImpl() }
+    // Instanciamos la base de datos Room
+    private val database by lazy { TamashiDatabase.getDatabase(applicationContext) }
+
+    // Creamos el repositorio usando los DAOs de Room
+    private val playlistRepository by lazy {
+        RoomPlaylistRepository(
+            playlistDao = database.playlistDao(),
+            objectiveDao = database.objectiveDao()
+        )
+    }
+
+    // Repositorio de preferencias del Tamashi
+    private val tamashiPrefsRepository by lazy { TamashiPreferencesRepository(applicationContext) }
 
     // Creamos el ViewModel para la pantalla principal
-    private val homeViewModel by lazy { HomeViewModel(playlistRepository) }
+    private val homeViewModel by lazy { HomeViewModel(playlistRepository, tamashiPrefsRepository) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -86,6 +86,20 @@ class FakePlaylistRepository : PlaylistRepository {
         objectives.value = objectives.value.filterNot { it.id == objectiveId }
         return Result.success(Unit)
     }
+
+    /**
+     * Devuelve un Flow con el conteo total de objetivos.
+     */
+    override fun getTotalObjectivesCount(): Flow<Int> {
+        return MutableStateFlow(objectives.value.size)
+    }
+
+    /**
+     * Devuelve un Flow con el conteo de objetivos completados.
+     */
+    override fun getCompletedObjectivesCount(): Flow<Int> {
+        return MutableStateFlow(objectives.value.count { it.completed })
+    }
 }
 
 
