@@ -141,8 +141,7 @@ fun HomeScreen(homeViewModel: HomeViewModel, modifier: Modifier = Modifier) {
                     // Gracias al "smart casting" de Kotlin, podemos acceder a `playlist` directamente.
                     playlistName = (currentScreen as HomeScreenNav.Detail).playlist.name,
                     viewModel = homeViewModel,
-                    onBack = { currentScreen = HomeScreenNav.List },
-                    modifier = modifier
+                    onBack = { currentScreen = HomeScreenNav.List }
                 )
             }
         }
@@ -253,8 +252,7 @@ private fun PlaylistItem(
 ) {
     // Intentamos parsear el color hexadecimal, si falla usamos un color por defecto.
     val backgroundColor = try {
-        val colorInt = playlist.colorHex.removePrefix("#").toLong(16)
-        Color(colorInt or 0xFF00000000) // Aseguramos que el canal Alpha sea opaco si no viene incluido
+        Color(android.graphics.Color.parseColor(playlist.colorHex))
     } catch (_: Exception) { // Se usa `_` para indicar que el parámetro de la excepción no se utiliza.
         MaterialTheme.colorScheme.surfaceVariant
     }

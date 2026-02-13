@@ -70,7 +70,8 @@ fun PlaylistDetailScreen(
         TutorialViewModel(TutorialRepositoryImpl())
     }
 
-    Box(modifier = modifier) {
+    // El Box ahora solo se usa para el tutorial, sin aplicar el modifier principal aquí.
+    Box(modifier = Modifier.fillMaxSize()) {
         when (val screen = currentScreen) {
             is PlaylistDetailNav.List -> {
                 ObjectiveListScreen(
@@ -79,11 +80,11 @@ fun PlaylistDetailScreen(
                     onBack = onBack,
                     onNavigateToAdd = { currentScreen = PlaylistDetailNav.Add },
                     onNavigateToEdit = { objective -> currentScreen = PlaylistDetailNav.Edit(objective) },
-                    tutorialViewModel = tutorialViewModel
+                    tutorialViewModel = tutorialViewModel,
+                    modifier = modifier // Pasamos el modifier al ObjectiveListScreen
                 )
             }
             is PlaylistDetailNav.Add -> {
-                // Reutilizamos ObjectiveFormScreen para crear.
                 ObjectiveFormScreen(
                     existingObjective = null,
                     onSave = { name, description ->
@@ -94,7 +95,6 @@ fun PlaylistDetailScreen(
                 )
             }
             is PlaylistDetailNav.Edit -> {
-                // Reutilizamos ObjectiveFormScreen para editar.
                 ObjectiveFormScreen(
                     existingObjective = screen.objective,
                     onSave = { name, description ->
@@ -106,7 +106,7 @@ fun PlaylistDetailScreen(
             }
         }
 
-        TutorialOverlay(viewModel = tutorialViewModel)
+        TutorialOverlay(viewModel = tutorialViewModel, modifier = modifier)
     }
 }
 
@@ -118,12 +118,13 @@ private fun ObjectiveListScreen(
     onBack: () -> Unit,
     onNavigateToAdd: () -> Unit,
     onNavigateToEdit: (Objective) -> Unit,
-    tutorialViewModel: TutorialViewModel
+    tutorialViewModel: TutorialViewModel,
+    modifier: Modifier = Modifier
 ) {
-    // Observamos la lista de objetivos en tiempo real.
     val objectives by viewModel.objectives.collectAsState(initial = emptyList())
 
     Scaffold(
+        modifier = modifier, // Aplicamos el modifier aquí para que el Scaffold se posicione correctamente.
         topBar = {
             TopAppBar(
                 title = { Text(playlistName) },
@@ -138,7 +139,7 @@ private fun ObjectiveListScreen(
     ) { innerPadding ->
         if (objectives.isEmpty()) {
             EmptyObjectivesScreen(
-                modifier = Modifier.padding(innerPadding),
+                modifier = Modifier.padding(innerPadding), // El padding del Scaffold se aplica al contenido.
                 onStartTutorial = {
                     val steps = listOf(
                         TutorialStep(
@@ -167,9 +168,7 @@ private fun ObjectiveListScreen(
             )
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
+                modifier = Modifier.padding(innerPadding), // El padding del Scaffold se aplica al contenido.
                 contentPadding = PaddingValues(16.dp)
             ) {
                 items(objectives) { objective ->
@@ -183,6 +182,7 @@ private fun ObjectiveListScreen(
         }
     }
 }
+
 
 @Composable
 private fun EmptyObjectivesScreen(
