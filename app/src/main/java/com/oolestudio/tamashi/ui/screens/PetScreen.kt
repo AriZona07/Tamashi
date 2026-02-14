@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -201,9 +202,9 @@ fun PetScreen(
     // Color de la barra de salud según el nivel
     val healthColor by animateColorAsState(
         targetValue = when {
-            healthPercentage >= 0.8f -> Color(0xFF4CAF50) // Verde - salud alta
-            healthPercentage >= 0.6f -> Color(0xFFFFC107) // Amarillo - salud media
-            else -> Color(0xFFFF5722) // Naranja/Rojo - salud baja
+            healthPercentage >= 0.8f -> MaterialTheme.colorScheme.primary
+            healthPercentage >= 0.6f -> MaterialTheme.colorScheme.secondary
+            else -> MaterialTheme.colorScheme.error
         },
         animationSpec = tween(durationMillis = 300),
         label = "healthColor"
@@ -306,8 +307,8 @@ fun PetScreen(
                                 .background(
                                     brush = Brush.horizontalGradient(
                                         colors = listOf(
-                                            Color(0xFFEF88B6),
-                                            Color(0xFFB388EF)
+                                            MaterialTheme.colorScheme.primary,
+                                            MaterialTheme.colorScheme.secondary
                                         )
                                     ),
                                     shape = RoundedCornerShape(12.dp)
@@ -318,7 +319,7 @@ fun PetScreen(
                                 text = "Nv.${tamashiLevel.levelNumber} ${tamashiLevel.displayName}",
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
 
@@ -330,7 +331,7 @@ fun PetScreen(
                             Icon(
                                 imageVector = Icons.Default.Info,
                                 contentDescription = "Información del Tamashi",
-                                tint = Color(0xFFEF88B6),
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -408,7 +409,7 @@ fun PetScreen(
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = "XP",
-                            tint = Color(0xFFEF88B6),
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -423,14 +424,14 @@ fun PetScreen(
                                 text = "$tamashiXp / $nextLevelXp XP",
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFEF88B6)
+                                color = MaterialTheme.colorScheme.primary
                             )
                         } else {
                             Text(
                                 text = "✨ MAX",
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFFFD700)
+                                color = MaterialTheme.colorScheme.secondary
                             )
                         }
                     }
@@ -453,8 +454,8 @@ fun PetScreen(
                                 .background(
                                     brush = Brush.horizontalGradient(
                                         colors = listOf(
-                                            Color(0xFFEF88B6),
-                                            Color(0xFFB388EF)
+                                            MaterialTheme.colorScheme.primary,
+                                            MaterialTheme.colorScheme.secondary
                                         )
                                     )
                                 )
@@ -519,7 +520,7 @@ fun PetScreen(
                         .padding(horizontal = 32.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFFFF3E0)
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 ) {
                     Column(
@@ -541,7 +542,7 @@ fun PetScreen(
                         Text(
                             text = "Crea tu primer objetivo para que pueda nacer",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            color = if (isSystemInDarkTheme()) Color.Black else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -561,7 +562,7 @@ fun PetScreen(
                         text = "¡Tu Tamashi está naciendo!",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFFEF88B6)
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -582,7 +583,7 @@ fun PetScreen(
                         text = getLevelMessage(tamashiLevel),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFFEF88B6),
+                        color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.Center
                     )
 
@@ -641,7 +642,7 @@ private fun TamashiInfoDialog(
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = null,
-                    tint = Color(0xFFEF88B6)
+                    tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Información del Tamashi")
@@ -656,7 +657,7 @@ private fun TamashiInfoDialog(
                     text = "❤️ Sistema de Vida",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFFFF5722)
+                    color = MaterialTheme.colorScheme.error
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -679,7 +680,7 @@ private fun TamashiInfoDialog(
                     text = "⭐ Sistema de Niveles",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFFEF88B6)
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -697,7 +698,7 @@ private fun TamashiInfoDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
-                                if (isCurrentLevel) Color(0xFFEF88B6).copy(alpha = 0.1f)
+                                if (isCurrentLevel) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                                 else Color.Transparent,
                                 RoundedCornerShape(8.dp)
                             )
@@ -710,9 +711,9 @@ private fun TamashiInfoDialog(
                                 .size(24.dp)
                                 .background(
                                     color = when {
-                                        isCurrentLevel -> Color(0xFFEF88B6)
-                                        isUnlocked -> Color(0xFF4CAF50)
-                                        else -> Color.Gray.copy(alpha = 0.3f)
+                                        isCurrentLevel -> MaterialTheme.colorScheme.primary
+                                        isUnlocked -> MaterialTheme.colorScheme.secondary
+                                        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                                     },
                                     shape = CircleShape
                                 ),
@@ -722,14 +723,14 @@ private fun TamashiInfoDialog(
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     contentDescription = null,
-                                    tint = Color.White,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(14.dp)
                                 )
                             } else {
                                 Text(
                                     text = "${level.levelNumber}",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = if (isUnlocked) Color.White else Color.Gray
+                                    color = if (isUnlocked) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }
@@ -756,14 +757,14 @@ private fun TamashiInfoDialog(
                             Text(
                                 text = "ACTUAL",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFFEF88B6),
+                                color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Bold
                             )
                         } else if (isUnlocked) {
                             Text(
                                 text = "✓",
                                 style = MaterialTheme.typography.labelMedium,
-                                color = Color(0xFF4CAF50)
+                                color = MaterialTheme.colorScheme.secondary
                             )
                         }
                     }
@@ -780,7 +781,7 @@ private fun TamashiInfoDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            Color(0xFFEF88B6).copy(alpha = 0.1f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                             RoundedCornerShape(8.dp)
                         )
                         .padding(12.dp)
@@ -789,7 +790,7 @@ private fun TamashiInfoDialog(
                         Text(
                             text = "Tu progreso actual",
                             style = MaterialTheme.typography.labelMedium,
-                            color = Color(0xFFEF88B6)
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -808,7 +809,7 @@ private fun TamashiInfoDialog(
                             Text(
                                 text = "¡Has alcanzado el nivel máximo! 🎉",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color(0xFF4CAF50)
+                                color = MaterialTheme.colorScheme.secondary
                             )
                         }
                     }
@@ -827,7 +828,7 @@ private fun TamashiInfoDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Entendido", color = Color(0xFFEF88B6))
+                Text("Entendido", color = MaterialTheme.colorScheme.primary)
             }
         }
     )

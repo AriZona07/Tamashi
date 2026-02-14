@@ -102,7 +102,7 @@ private fun LockedTamashiCircle(label: String, modifier: Modifier = Modifier) {
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            Icon(imageVector = Icons.Default.Lock, contentDescription = "Bloqueado", tint = Color.Gray, modifier = Modifier.size(48.dp))
+            Icon(imageVector = Icons.Default.Lock, contentDescription = "Bloqueado", tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier.size(48.dp))
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = label, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)

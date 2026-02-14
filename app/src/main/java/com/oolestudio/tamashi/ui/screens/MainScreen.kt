@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.oolestudio.tamashi.viewmodel.ThemeViewModel
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
 
 // Sealed class para representar las pantallas disponibles en la barra de navegación inferior.
@@ -35,7 +36,7 @@ sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: 
  * Actúa como contenedor para las secciones principales de la app.
  */
 @Composable
-fun MainScreen(homeViewModel: HomeViewModel) {
+fun MainScreen(homeViewModel: HomeViewModel, themeViewModel: ThemeViewModel) {
     // Estado para saber qué pestaña de la barra inferior está seleccionada.
     var currentScreen by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
 
@@ -70,7 +71,10 @@ fun MainScreen(homeViewModel: HomeViewModel) {
             BottomNavItem.Home -> HomeScreen(homeViewModel = homeViewModel, modifier = Modifier.padding(innerPadding))
             BottomNavItem.Pet -> PetScreen(homeViewModel = homeViewModel, modifier = Modifier.padding(innerPadding))
             BottomNavItem.Calendar -> CalendarScreen(modifier = Modifier.padding(innerPadding))
-            BottomNavItem.Settings -> SettingsScreen(modifier = Modifier.padding(innerPadding))
+            BottomNavItem.Settings -> SettingsScreen(
+                modifier = Modifier.padding(innerPadding),
+                themeViewModel = themeViewModel
+            )
         }
     }
 }

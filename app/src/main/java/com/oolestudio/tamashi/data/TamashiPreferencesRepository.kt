@@ -13,6 +13,16 @@ private const val KEY_TAMASHI_CHOSEN = "is_tamashi_chosen"
 private const val KEY_TAMASHI_XP = "tamashi_xp"
 private const val KEY_TAMASHI_HATCHED = "tamashi_hatched"
 private const val KEY_SEEN_OBJECTIVE_TUTORIAL = "seen_objective_tutorial"
+private const val KEY_THEME_SETTING = "theme_setting"
+
+/**
+ * Opciones de tema disponibles en la app.
+ */
+enum class ThemeSetting {
+    SYSTEM,
+    LIGHT,
+    DARK
+}
 
 /**
  * Representa los niveles de evolución del Tamashi
@@ -64,11 +74,13 @@ class TamashiPreferencesRepository(context: Context) {
     private val chosenFlow = MutableStateFlow(isTamashiChosen())
     private val xpFlow = MutableStateFlow(readXp())
     private val hatchedFlow = MutableStateFlow(isHatched())
+    private val themeSettingFlow = MutableStateFlow(readThemeSetting())
 
     fun flowSelectedTamashi(): Flow<TamashiProfile?> = selectedFlow.asStateFlow()
     fun flowIsTamashiChosen(): Flow<Boolean> = chosenFlow.asStateFlow()
     fun flowXp(): Flow<Int> = xpFlow.asStateFlow()
     fun flowIsHatched(): Flow<Boolean> = hatchedFlow.asStateFlow()
+    fun flowThemeSetting(): Flow<ThemeSetting> = themeSettingFlow.asStateFlow()
 
     /**
      * Obtiene el estado actual del Tamashi con su nivel y progreso
@@ -106,10 +118,24 @@ class TamashiPreferencesRepository(context: Context) {
 
     private fun isHatched(): Boolean = prefs.getBoolean(KEY_TAMASHI_HATCHED, false)
 
+    private fun readThemeSetting(): ThemeSetting {
+        val themeName = prefs.getString(KEY_THEME_SETTING, ThemeSetting.SYSTEM.name)
+        return try {
+            ThemeSetting.valueOf(themeName ?: ThemeSetting.SYSTEM.name)
+        } catch (e: IllegalArgumentException) {
+            ThemeSetting.SYSTEM
+        }
+    }
+
     fun hasSeenObjectiveTutorial(): Boolean = prefs.getBoolean(KEY_SEEN_OBJECTIVE_TUTORIAL, false)
 
     suspend fun setHasSeenObjectiveTutorial(seen: Boolean) {
         prefs.edit().putBoolean(KEY_SEEN_OBJECTIVE_TUTORIAL, seen).apply()
+    }
+
+    suspend fun setThemeSetting(theme: ThemeSetting) {
+        prefs.edit().putString(KEY_THEME_SETTING, theme.name).apply()
+        themeSettingFlow.value = theme
     }
 
     suspend fun setTamashi(profile: TamashiProfile) {

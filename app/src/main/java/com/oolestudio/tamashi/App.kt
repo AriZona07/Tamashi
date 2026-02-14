@@ -10,6 +10,7 @@ import com.oolestudio.tamashi.data.PlaylistRepository
 import com.oolestudio.tamashi.data.TamashiPreferencesRepository
 import com.oolestudio.tamashi.ui.screens.MainScreen
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
+import com.oolestudio.tamashi.viewmodel.ThemeViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -114,11 +115,14 @@ class FakePlaylistRepository : PlaylistRepository {
 @Composable
 @Preview
 fun AppPreview() {
+    val context = LocalContext.current
+    val tamashiPrefsRepository = TamashiPreferencesRepository(context)
     App(
         homeViewModel = HomeViewModel(
             playlistRepository = FakePlaylistRepository(),
-            tamashiPrefsRepository = TamashiPreferencesRepository(LocalContext.current)
-        )
+            tamashiPrefsRepository = tamashiPrefsRepository
+        ),
+        themeViewModel = ThemeViewModel(tamashiPrefsRepository)
     )
 }
 
@@ -128,8 +132,8 @@ fun AppPreview() {
  * @param homeViewModel El ViewModel que gestiona la lógica de la pantalla principal.
  */
 @Composable
-fun App(homeViewModel: HomeViewModel) {
+fun App(homeViewModel: HomeViewModel, themeViewModel: ThemeViewModel) {
     MaterialTheme {
-        MainScreen(homeViewModel = homeViewModel)
+        MainScreen(homeViewModel = homeViewModel, themeViewModel = themeViewModel)
     }
 }
