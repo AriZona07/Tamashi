@@ -1,4 +1,4 @@
-package com.oolestudio.tamashi.ui
+package com.oolestudio.tamashi.util
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder

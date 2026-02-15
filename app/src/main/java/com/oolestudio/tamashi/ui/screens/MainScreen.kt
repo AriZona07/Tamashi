@@ -20,7 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.oolestudio.tamashi.viewmodel.ThemeViewModel
+import com.oolestudio.tamashi.viewmodel.theme.ThemeViewModel
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
 
 // Sealed class para representar las pantallas disponibles en la barra de navegación inferior.

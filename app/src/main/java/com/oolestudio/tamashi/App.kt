@@ -10,7 +10,7 @@ import com.oolestudio.tamashi.data.PlaylistRepository
 import com.oolestudio.tamashi.data.TamashiPreferencesRepository
 import com.oolestudio.tamashi.ui.screens.MainScreen
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
-import com.oolestudio.tamashi.viewmodel.ThemeViewModel
+import com.oolestudio.tamashi.viewmodel.theme.ThemeViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 

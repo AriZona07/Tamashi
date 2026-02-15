@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oolestudio.tamashi.data.TamashiPreferencesRepository
 import com.oolestudio.tamashi.ui.components.settings.SettingsButton
-import com.oolestudio.tamashi.viewmodel.ProfileViewModel
-import com.oolestudio.tamashi.viewmodel.ProfileViewModelFactory
+import com.oolestudio.tamashi.viewmodel.profile.ProfileViewModel
+import com.oolestudio.tamashi.viewmodel.profile.ProfileViewModelFactory
 
 /**
  * Pantalla de edición de Perfil.

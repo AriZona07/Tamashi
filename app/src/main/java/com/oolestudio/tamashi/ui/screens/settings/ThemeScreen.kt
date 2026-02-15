@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.oolestudio.tamashi.R
 import com.oolestudio.tamashi.data.ThemeSetting
-import com.oolestudio.tamashi.viewmodel.ThemeViewModel
+import com.oolestudio.tamashi.viewmodel.theme.ThemeViewModel
 
 /**
  * Pantalla para seleccionar el tema de la aplicación.

@@ -1,4 +1,4 @@
-package com.oolestudio.tamashi.ui.screens
+package com.oolestudio.tamashi.ui.screens.welcome
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.oolestudio.tamashi.ui.tutorial.SpeechBubble
 import com.oolestudio.tamashi.ui.tutorial.TamashiAvatar
-import com.oolestudio.tamashi.viewmodel.TamashiSelectionViewModel
+import com.oolestudio.tamashi.viewmodel.tamashiselection.TamashiSelectionViewModel
 
 @Composable
 fun TamashiSelectionScreen(
@@ -86,7 +86,7 @@ fun TamashiSelectionScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { viewModel.confirmSelection(onConfirmed) }, enabled = ui.selected != null) {
+        Button(onClick = onConfirmed, enabled = ui.selected != null) {
             Text("Confirmar")
         }
     }

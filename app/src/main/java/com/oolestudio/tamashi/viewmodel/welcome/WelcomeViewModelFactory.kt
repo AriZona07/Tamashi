@@ -1,15 +1,14 @@
-package com.oolestudio.tamashi.viewmodel
+package com.oolestudio.tamashi.viewmodel.welcome
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.oolestudio.tamashi.data.TamashiPreferencesRepository
 
-class ProfileViewModelFactory(private val repository: TamashiPreferencesRepository) :
-    ViewModelProvider.Factory {
+class WelcomeViewModelFactory(private val repository: TamashiPreferencesRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(WelcomeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return ProfileViewModel(repository) as T
+            return WelcomeViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

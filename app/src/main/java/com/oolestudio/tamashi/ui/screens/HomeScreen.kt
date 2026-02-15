@@ -39,7 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.oolestudio.tamashi.data.Playlist
-import com.oolestudio.tamashi.ui.getIconForCategory
+import com.oolestudio.tamashi.util.getIconForCategory
 import com.oolestudio.tamashi.ui.screens.playlist.CreatePlaylistScreen
 import com.oolestudio.tamashi.ui.screens.playlist.PlaylistDetailScreen
 import com.oolestudio.tamashi.ui.tutorial.TutorialOverlay

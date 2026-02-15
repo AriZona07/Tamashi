@@ -1,9 +1,8 @@
-package com.oolestudio.tamashi.viewmodel
+package com.oolestudio.tamashi.viewmodel.theme
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.oolestudio.tamashi.data.TamashiPreferencesRepository
-import com.oolestudio.tamashi.viewmodel.ThemeViewModel
 
 /**
  * Factory para crear instancias de `ThemeViewModel`.

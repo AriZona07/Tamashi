@@ -7,17 +7,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.oolestudio.tamashi.data.TamashiPreferencesRepository
 import com.oolestudio.tamashi.data.local.RoomPlaylistRepository
 import com.oolestudio.tamashi.data.local.TamashiDatabase
 import com.oolestudio.tamashi.ui.screens.MainScreen
-import com.oolestudio.tamashi.ui.screens.TamashiSelectionScreen
-import com.oolestudio.tamashi.viewmodel.ThemeViewModel
-import com.oolestudio.tamashi.viewmodel.ThemeViewModelFactory
+import com.oolestudio.tamashi.ui.screens.welcome.WelcomeScreen
+import com.oolestudio.tamashi.viewmodel.theme.ThemeViewModel
+import com.oolestudio.tamashi.viewmodel.theme.ThemeViewModelFactory
 import com.oolestudio.tamashi.ui.theme.TamashiTheme
 import com.oolestudio.tamashi.util.tutorial.TutorialConfig
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
-import com.oolestudio.tamashi.viewmodel.TamashiSelectionViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -46,21 +48,24 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val selectionVm = TamashiSelectionViewModel(tamashiPrefsRepository)
         setContent {
             val themeSetting by themeViewModel.themeSetting.collectAsState()
-            val ui by selectionVm.uiState.collectAsState()
+            var showWelcome by remember { mutableStateOf(true) }
+            val isWelcomeCompleted by tamashiPrefsRepository.flowWelcomeCompleted().collectAsState(initial = false)
+
+            if (isWelcomeCompleted) {
+                showWelcome = false
+            }
 
             TamashiTheme(themeSetting = themeSetting) {
-                // Sincroniza configuración global si hay perfil
-                ui.selected?.let {
-                    TutorialConfig.tamashiName = it.name
-                    TutorialConfig.tamashiAssetName = it.assetName
-                }
-
-                if (!ui.isChosen) {
-                    TamashiSelectionScreen(viewModel = selectionVm, onConfirmed = { /* navegar al MainScreen */ })
+                if (showWelcome) {
+                    WelcomeScreen(onWelcomeComplete = { showWelcome = false })
                 } else {
+                    val selectedTamashi by tamashiPrefsRepository.flowSelectedTamashi().collectAsState(null)
+                    selectedTamashi?.let {
+                        TutorialConfig.tamashiName = it.name
+                        TutorialConfig.tamashiAssetName = it.assetName
+                    }
                     MainScreen(homeViewModel, themeViewModel)
                 }
             }
