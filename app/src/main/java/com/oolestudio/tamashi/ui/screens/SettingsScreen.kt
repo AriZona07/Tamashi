@@ -13,8 +13,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oolestudio.tamashi.data.TamashiPreferencesRepository
 import com.oolestudio.tamashi.ui.components.settings.SettingsMenu
 import com.oolestudio.tamashi.ui.screens.settings.CreditsScreen
-import com.oolestudio.tamashi.ui.screens.settings.LanguageScreen
-import com.oolestudio.tamashi.ui.screens.settings.NotificationsScreen
 import com.oolestudio.tamashi.ui.screens.settings.ProfileScreen
 import com.oolestudio.tamashi.ui.screens.settings.ThemeScreen
 import com.oolestudio.tamashi.ui.screens.welcome.TamashiSelectionScreen
@@ -28,15 +26,13 @@ private sealed class SettingsScreenNav {
     object Main : SettingsScreenNav()
     object EditProfile : SettingsScreenNav()
     object ChangeTamashi : SettingsScreenNav()
-    object Language : SettingsScreenNav()
-    object Notifications : SettingsScreenNav()
     object Theme : SettingsScreenNav()
     object Credits : SettingsScreenNav()
 }
 
 /**
  * Pantalla principal de Ajustes.
- * Gestiona la navegación hacia las diferentes subsecciones de configuración.
+ * Gestiona la navegación hacia las diferentes sub-secciones de configuración.
  */
 @Composable
 fun SettingsScreen(
@@ -52,8 +48,6 @@ fun SettingsScreen(
         is SettingsScreenNav.Main -> {
             SettingsMenu(
                 onNavigateToEditProfile = { currentSettingsScreen = SettingsScreenNav.EditProfile },
-                onNavigateToLanguage = { currentSettingsScreen = SettingsScreenNav.Language },
-                onNavigateToNotifications = { currentSettingsScreen = SettingsScreenNav.Notifications },
                 onNavigateToTheme = { currentSettingsScreen = SettingsScreenNav.Theme },
                 onNavigateToCredits = { currentSettingsScreen = SettingsScreenNav.Credits },
                 modifier = modifier
@@ -85,16 +79,6 @@ fun SettingsScreen(
                 modifier = modifier
             )
         }
-        // Redirige a LanguageScreen
-        is SettingsScreenNav.Language -> LanguageScreen(
-            onBack = { currentSettingsScreen = SettingsScreenNav.Main },
-            modifier = modifier
-        )
-        // Redirige a NotificationsScreen
-        is SettingsScreenNav.Notifications -> NotificationsScreen(
-            onBack = { currentSettingsScreen = SettingsScreenNav.Main },
-            modifier = modifier
-        )
         // Redirige a ThemeScreen
         is SettingsScreenNav.Theme -> ThemeScreen(
             viewModel = themeViewModel,

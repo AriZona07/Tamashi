@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.oolestudio.tamashi.ui.tutorial.SpeechBubble
@@ -40,54 +40,59 @@ fun TamashiSelectionScreen(
 ) {
     val ui by viewModel.uiState.collectAsState()
 
-    Column(
-        modifier = modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.Center, // Centrar verticalmente todo el contenido
-        horizontalAlignment = Alignment.CenterHorizontally
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        SpeechBubble(text = "Elige tu Tamashi")
-
-        // Pirámide de 3 círculos
         Column(
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = Modifier.fillMaxSize().padding(24.dp),
+            verticalArrangement = Arrangement.Center, // Centrar verticalmente todo el contenido
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Punta del triángulo: Bublu (clickeable)
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                val isSelected = ui.selected?.name == (ui.options.firstOrNull()?.name ?: "Bublu")
-                Box(
-                    modifier = Modifier
-                        .size(140.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .border(
-                            width = if (isSelected) 4.dp else 0.dp,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                            shape = CircleShape
+            SpeechBubble(text = "Elige tu Tamashi")
+
+            // Pirámide de 3 círculos
+            Column(
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Punta del triángulo: Bublu (clickeable)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    val isSelected = ui.selected?.name == (ui.options.firstOrNull()?.name ?: "Bublu")
+                    Box(
+                        modifier = Modifier
+                            .size(140.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(
+                                width = if (isSelected) 4.dp else 0.dp,
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                                shape = CircleShape
+                            )
+                            .clickable { viewModel.selectTamashi(ui.options.first()) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        TamashiAvatar(
+                            tamashiName = ui.options.firstOrNull()?.name ?: "Bublu",
+                            assetOverride = ui.options.firstOrNull()?.assetName ?: "ajolote", // Corregido
+                            modifier = Modifier.size(120.dp)
                         )
-                        .clickable { viewModel.selectTamashi(ui.options.first()) },
-                    contentAlignment = Alignment.Center
-                ) {
-                    TamashiAvatar(
-                        tamashiName = ui.options.firstOrNull()?.name ?: "Bublu",
-                        assetOverride = ui.options.firstOrNull()?.assetName ?: "ajolote", // Corregido
-                        modifier = Modifier.size(120.dp)
-                    )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = ui.options.firstOrNull()?.name ?: "Bublu", style = MaterialTheme.typography.titleMedium)
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = ui.options.firstOrNull()?.name ?: "Bublu", style = MaterialTheme.typography.titleMedium)
+
+                // Base del triángulo: 2 bloqueados (no clickeables)
+                Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                    LockedTamashiCircle(label = "Próximamente...")
+                    LockedTamashiCircle(label = "Próximamente...")
+                }
             }
 
-            // Base del triángulo: 2 bloqueados (no clickeables)
-            Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                LockedTamashiCircle(label = "Próximamente...")
-                LockedTamashiCircle(label = "Próximamente...")
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onConfirmed, enabled = ui.selected != null) {
+                Text("Confirmar")
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onConfirmed, enabled = ui.selected != null) {
-            Text("Confirmar")
         }
     }
 }

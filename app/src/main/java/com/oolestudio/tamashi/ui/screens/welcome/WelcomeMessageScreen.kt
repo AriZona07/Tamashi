@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,19 +24,24 @@ fun WelcomeMessageScreen(
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        TamashiAvatar(tamashiName = tamashiName)
-        Spacer(modifier = Modifier.height(16.dp))
-        SpeechBubble(text = "¡Hola, $userName, yo seré tu guía para cumplir tus objetivos personales")
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onConfirm) {
-            Text("Comenzar")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TamashiAvatar(tamashiName = tamashiName)
+            Spacer(modifier = Modifier.height(16.dp))
+            SpeechBubble(text = "¡Hola, $userName, yo seré tu guía para cumplir tus objetivos personales")
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onConfirm) {
+                Text("Comenzar")
+            }
         }
     }
 }
