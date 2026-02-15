@@ -13,9 +13,9 @@ import kotlinx.coroutines.launch
 
 data class TamashiSelectionUiState(
     val options: List<TamashiProfile> = listOf(
-        TamashiProfile(name = "Bublu", assetName = "asset_tamashi_bublu")
+        TamashiProfile(name = "Bublu", assetName = "ajolote") // Asset actualizado
         // Agrega más Tamashis aquí, por ejemplo:
-        // TamashiProfile(name = "Kumo", assetName = "asset_tamashi_kumo")
+        // TamashiProfile(name = "Kumo", assetName = "kumo_asset")
     ),
     val selected: TamashiProfile? = null,
     val isChosen: Boolean = false

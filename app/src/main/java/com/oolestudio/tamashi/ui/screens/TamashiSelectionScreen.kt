@@ -70,7 +70,7 @@ fun TamashiSelectionScreen(
                 ) {
                     TamashiAvatar(
                         tamashiName = ui.options.firstOrNull()?.name ?: "Bublu",
-                        assetOverride = ui.options.firstOrNull()?.assetName ?: "asset_tamashi_bublu",
+                        assetOverride = ui.options.firstOrNull()?.assetName ?: "ajolote", // Corregido
                         modifier = Modifier.size(120.dp)
                     )
                 }

@@ -12,12 +12,14 @@ import com.oolestudio.tamashi.ui.screens.settings.LanguageScreen
 import com.oolestudio.tamashi.ui.screens.settings.NotificationsScreen
 import com.oolestudio.tamashi.ui.screens.settings.ProfileScreen
 import com.oolestudio.tamashi.ui.screens.settings.ThemeScreen
+import com.oolestudio.tamashi.ui.screens.welcome.TamashiWelcomeScreen
 import com.oolestudio.tamashi.viewmodel.ThemeViewModel
 
 // Sealed class para gestionar la navegación interna dentro de la pantalla de Ajustes.
 private sealed class SettingsScreenNav {
     object Main : SettingsScreenNav()
     object EditProfile : SettingsScreenNav()
+    object ChangeTamashi : SettingsScreenNav()
     object Language : SettingsScreenNav()
     object Notifications : SettingsScreenNav()
     object Theme : SettingsScreenNav()
@@ -49,6 +51,12 @@ fun SettingsScreen(
         // Redirige a ProfileScreen
         is SettingsScreenNav.EditProfile -> ProfileScreen(
             onBack = { currentSettingsScreen = SettingsScreenNav.Main },
+            onChangeTamashi = { currentSettingsScreen = SettingsScreenNav.ChangeTamashi },
+            modifier = modifier
+        )
+        // Redirige a TamashiWelcomeScreen
+        is SettingsScreenNav.ChangeTamashi -> TamashiWelcomeScreen(
+            onConfirmed = { currentSettingsScreen = SettingsScreenNav.Main },
             modifier = modifier
         )
         // Redirige a LanguageScreen

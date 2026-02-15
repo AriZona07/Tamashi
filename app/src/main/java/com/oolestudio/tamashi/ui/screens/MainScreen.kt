@@ -2,7 +2,7 @@ package com.oolestudio.tamashi.ui.screens
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Settings
@@ -25,9 +25,9 @@ import com.oolestudio.tamashi.viewmodel.HomeViewModel
 
 // Sealed class para representar las pantallas disponibles en la barra de navegación inferior.
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
-    object Home : BottomNavItem("home", Icons.Default.Home, "Inicio")
-    object Pet : BottomNavItem("pet", Icons.Default.Pets, "Mascota")
-    object Calendar : BottomNavItem("calendar", Icons.Default.DateRange, "Calendario")
+    object Home : BottomNavItem("home", Icons.Default.Home, "Playlists")
+    object Pet : BottomNavItem("pet", Icons.Default.Pets, "Tamashi")
+    object History : BottomNavItem("history", Icons.AutoMirrored.Filled.MenuBook, "Historia")
     object Settings : BottomNavItem("settings", Icons.Default.Settings, "Ajustes")
 }
 
@@ -53,7 +53,7 @@ fun MainScreen(homeViewModel: HomeViewModel, themeViewModel: ThemeViewModel) {
     Scaffold(
         bottomBar = {
             NavigationBar {
-                val navItems = listOf(BottomNavItem.Home, BottomNavItem.Pet, BottomNavItem.Calendar, BottomNavItem.Settings)
+                val navItems = listOf(BottomNavItem.Home, BottomNavItem.Pet, BottomNavItem.History, BottomNavItem.Settings)
                 navItems.forEach { item ->
                     NavigationBarItem(
                         selected = currentScreen == item,
@@ -70,7 +70,7 @@ fun MainScreen(homeViewModel: HomeViewModel, themeViewModel: ThemeViewModel) {
         when (currentScreen) {
             BottomNavItem.Home -> HomeScreen(homeViewModel = homeViewModel, modifier = Modifier.padding(innerPadding))
             BottomNavItem.Pet -> PetScreen(homeViewModel = homeViewModel, modifier = Modifier.padding(innerPadding))
-            BottomNavItem.Calendar -> CalendarScreen(modifier = Modifier.padding(innerPadding))
+            BottomNavItem.History -> HistoryScreen(modifier = Modifier.padding(innerPadding))
             BottomNavItem.Settings -> SettingsScreen(
                 modifier = Modifier.padding(innerPadding),
                 themeViewModel = themeViewModel

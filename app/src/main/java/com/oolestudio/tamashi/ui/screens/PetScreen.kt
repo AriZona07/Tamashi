@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,6 +61,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.oolestudio.tamashi.R
 import com.oolestudio.tamashi.data.TamashiLevel
+import com.oolestudio.tamashi.ui.components.petscreen.TamashiDialogue
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
 
 /**
@@ -69,6 +71,15 @@ private enum class TamashiState {
     EGG_IDLE,      // Huevo temblando (sin objetivos)
     EGG_HATCHING,  // Huevo eclosionando (animación completa una vez)
     AXOLOTL        // Ajolote (después de la eclosión)
+}
+
+/**
+ * Estado del diálogo del Tamashi
+ */
+private enum class DialogueState {
+    HIDDEN,
+    GREETING,
+    LEVEL_UP_HINT
 }
 
 /**
@@ -124,6 +135,7 @@ fun PetScreen(
     val completedObjectives by homeViewModel.completedObjectivesCount.collectAsState()
     val shouldShowHatching by homeViewModel.shouldShowHatching.collectAsState()
     val tamashiHasHatched by homeViewModel.tamashiHasHatched.collectAsState()
+    val userName by homeViewModel.userName.collectAsState()
 
     // Estados de nivel y XP
     val tamashiXp by homeViewModel.tamashiXp.collectAsState()
@@ -132,6 +144,7 @@ fun PetScreen(
 
     // Estado para mostrar el diálogo de información
     var showInfoDialog by remember { mutableStateOf(false) }
+    var dialogueState by remember { mutableStateOf(DialogueState.HIDDEN) }
 
     // Calcular progreso hacia el siguiente nivel
     val nextLevelXp = com.oolestudio.tamashi.data.TamashiLevel.getNextLevel(tamashiLevel)?.requiredXp
@@ -304,532 +317,180 @@ fun PetScreen(
                         // Badge de nivel central
                         Box(
                             modifier = Modifier
-                                .background(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            MaterialTheme.colorScheme.primary,
-                                            MaterialTheme.colorScheme.secondary
-                                        )
-                                    ),
-                                    shape = RoundedCornerShape(12.dp)
-                                )
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer)
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
                             Text(
-                                text = "Nv.${tamashiLevel.levelNumber} ${tamashiLevel.displayName}",
-                                style = MaterialTheme.typography.labelLarge,
+                                text = "Nivel ${tamashiLevel.levelNumber}",
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
 
                         // Botón de información
-                        IconButton(
-                            onClick = { showInfoDialog = true },
-                            modifier = Modifier.size(32.dp)
-                        ) {
+                        IconButton(onClick = { showInfoDialog = true }) {
                             Icon(
                                 imageVector = Icons.Default.Info,
-                                contentDescription = "Información del Tamashi",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
+                                contentDescription = "Información de Salud"
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    // Sección de Vida
+                    // Barra de salud
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
                             imageVector = Icons.Default.Favorite,
-                            contentDescription = "Vida",
-                            tint = healthColor,
-                            modifier = Modifier.size(18.dp)
+                            contentDescription = "Salud",
+                            tint = healthColor
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Vida",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Text(
-                            text = "${getHealthEmoji(healthPercentage)} ${(healthPercentage * 100).toInt()}%",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = healthColor
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    // Barra de progreso de vida con gradiente
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(10.dp)
-                            .clip(RoundedCornerShape(5.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        // Barra de progreso lineal
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(animatedHealth)
-                                .height(10.dp)
-                                .clip(RoundedCornerShape(5.dp))
-                                .background(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            healthColor.copy(alpha = 0.7f),
-                                            healthColor
-                                        )
-                                    )
-                                )
-                        )
+                                .weight(1f)
+                                .height(20.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(animatedHealth)
+                                    .height(20.dp)
+                                    .clip(CircleShape)
+                                    .background(healthColor)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        // Emoji de estado
+                        Text(text = getHealthEmoji(healthPercentage), fontSize = 24.sp)
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(
-                        text = "$completedObjectives de $totalObjectives objetivos completados",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Sección de XP
+                    // Barra de XP
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = "XP",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp)
+                            tint = MaterialTheme.colorScheme.secondary
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Experiencia",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        if (nextLevelXp != null) {
-                            Text(
-                                text = "$tamashiXp / $nextLevelXp XP",
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        } else {
-                            Text(
-                                text = "✨ MAX",
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.secondary
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(12.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(animatedXpProgress)
+                                    .height(12.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.secondary)
                             )
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    // Barra de progreso de XP con gradiente
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(10.dp)
-                            .clip(RoundedCornerShape(5.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth(animatedXpProgress)
-                                .height(10.dp)
-                                .clip(RoundedCornerShape(5.dp))
-                                .background(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            MaterialTheme.colorScheme.primary,
-                                            MaterialTheme.colorScheme.secondary
-                                        )
-                                    )
-                                )
-                        )
-                    }
-
-                    if (nextLevelXp != null) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "${nextLevelXp - tamashiXp} XP para el siguiente nivel",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                        )
-                    }
                 }
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
         }
 
-        // Contenedor de animaciones con transición
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Espacio para el diálogo
+        if (dialogueState != DialogueState.HIDDEN) {
+            val dialogueText = when (dialogueState) {
+                DialogueState.GREETING -> "Hola $userName, ¿deseas conocer mi historia?"
+                DialogueState.LEVEL_UP_HINT -> "Súbeme de nivel para conocer mi historia"
+                DialogueState.HIDDEN -> ""
+            }
+            TamashiDialogue(text = dialogueText, modifier = Modifier.padding(bottom = 16.dp))
+        }
+
+        // Contenedor de la animación
         Box(
-            modifier = Modifier.size(250.dp), // Tamaño máximo del contenedor
+            modifier = Modifier
+                .size(animatedTamashiSize.dp) // Tamaño animado
+                .clickable { // Mostrar diálogo al tocar
+                    if (tamashiState == TamashiState.AXOLOTL) {
+                        dialogueState = when (dialogueState) {
+                            DialogueState.HIDDEN -> DialogueState.GREETING
+                            DialogueState.GREETING -> DialogueState.LEVEL_UP_HINT
+                            DialogueState.LEVEL_UP_HINT -> DialogueState.HIDDEN
+                        }
+                    }
+                },
             contentAlignment = Alignment.Center
         ) {
-            // Animación del Huevo (tamaño fijo)
-            androidx.compose.animation.AnimatedVisibility(
-                visible = showEgg,
-                enter = fadeIn(animationSpec = tween(500)),
-                exit = fadeOut(animationSpec = tween(500))
-            ) {
+            // Animación del Huevo
+            if (showEgg) {
                 LottieAnimation(
                     composition = eggComposition,
                     progress = { eggProgress },
-                    modifier = Modifier.size(200.dp) // Huevo tamaño fijo
+                    modifier = Modifier.fillMaxSize()
                 )
             }
 
-            // Animación del Ajolote (tamaño variable según nivel)
-            androidx.compose.animation.AnimatedVisibility(
-                visible = showAxolotl,
-                enter = fadeIn(animationSpec = tween(800)),
-                exit = fadeOut(animationSpec = tween(500))
-            ) {
+            // Animación del Ajolote
+            if (showAxolotl) {
                 LottieAnimation(
                     composition = axolotlComposition,
                     progress = { axolotlProgress },
-                    modifier = Modifier.size(animatedTamashiSize.dp) // Tamaño crece con el nivel
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        // Mensaje debajo del Tamashi
+        if (tamashiState == TamashiState.AXOLOTL) {
+            Text(
+                text = getLevelMessage(tamashiLevel),
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
 
-        // Mensajes según el estado
-        when (tamashiState) {
-            TamashiState.EGG_IDLE -> {
-                // Mensaje para huevo
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+        // Diálogo de información (si se activa)
+        if (showInfoDialog) {
+            AlertDialog(
+                onDismissRequest = { showInfoDialog = false },
+                title = { Text("¿Qué es la Salud?") },
+                text = {
+                    Text(
+                        "La salud de tu Tamashi refleja cuántos de tus objetivos has completado. " +
+                                "¡Mantén tus tareas al día para que esté feliz y saludable!"
                     )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "🥚",
-                            fontSize = 32.sp
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Tu Tamashi está esperando...",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Crea tu primer objetivo para que pueda nacer",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (isSystemInDarkTheme()) Color.Black else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                            textAlign = TextAlign.Center
-                        )
+                },
+                confirmButton = {
+                    TextButton(onClick = { showInfoDialog = false }) {
+                        Text("Entendido")
                     }
                 }
-            }
-            TamashiState.EGG_HATCHING -> {
-                // Mensaje durante eclosión
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "🎉✨🎉",
-                        fontSize = 32.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "¡Tu Tamashi está naciendo!",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Un momento mágico...",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    )
-                }
-            }
-            TamashiState.AXOLOTL -> {
-                // Mensaje personalizado según nivel y salud
-                Column(
-                    modifier = Modifier.padding(horizontal = 32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Mensaje dinámico según el nivel
-                    Text(
-                        text = getLevelMessage(tamashiLevel),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
+            )
+        }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Mensaje de estado basado en salud
-                    val statusMessage = when {
-                        healthPercentage >= 0.9f -> "¡Me siento increíble! Sigue así 🌈"
-                        healthPercentage >= 0.7f -> "¡Estamos haciéndolo bien! 💫"
-                        healthPercentage >= 0.5f -> "Podemos mejorar juntos 🌱"
-                        else -> "¡Necesito que completes objetivos! 🆘"
+        // Diálogo de subida de nivel
+        levelUpEvent?.let { newLevel ->
+            AlertDialog(
+                onDismissRequest = { homeViewModel.clearLevelUpEvent() },
+                title = { Text("¡Tu Tamashi subió de nivel!") },
+                text = { Text("Ahora es un ${newLevel.displayName} ${getLevelEmoji(newLevel)}") },
+                confirmButton = {
+                    TextButton(onClick = { homeViewModel.clearLevelUpEvent() }) {
+                        Text("¡Genial!")
                     }
-
-                    Text(
-                        text = statusMessage,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        textAlign = TextAlign.Center
-                    )
                 }
-            }
+            )
         }
     }
-
-    // Diálogo de información del Tamashi
-    if (showInfoDialog) {
-        TamashiInfoDialog(
-            currentLevel = tamashiLevel,
-            currentXp = tamashiXp,
-            healthPercentage = healthPercentage,
-            completedObjectives = completedObjectives,
-            totalObjectives = totalObjectives,
-            onDismiss = { showInfoDialog = false }
-        )
-    }
-}
-
-/**
- * Diálogo que muestra información detallada sobre el sistema del Tamashi
- */
-@Composable
-private fun TamashiInfoDialog(
-    currentLevel: TamashiLevel,
-    currentXp: Int,
-    healthPercentage: Float,
-    completedObjectives: Int,
-    totalObjectives: Int,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Información del Tamashi")
-            }
-        },
-        text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
-                // Sección de Vida
-                Text(
-                    text = "❤️ Sistema de Vida",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "La vida de tu Tamashi depende de cuántos objetivos tienes completados:",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "• Vida mínima: 50% (ningún objetivo completado)\n" +
-                            "• Vida máxima: 100% (todos los objetivos completados)\n" +
-                            "• Tu vida actual: ${(healthPercentage * 100).toInt()}% ($completedObjectives/$totalObjectives)",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Sección de Niveles
-                Text(
-                    text = "⭐ Sistema de Niveles",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Gana XP completando objetivos. Tu Tamashi crecerá a medida que sube de nivel:",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Lista de niveles
-                TamashiLevel.entries.forEach { level ->
-                    val isCurrentLevel = level == currentLevel
-                    val isUnlocked = currentXp >= level.requiredXp
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                if (isCurrentLevel) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                                else Color.Transparent,
-                                RoundedCornerShape(8.dp)
-                            )
-                            .padding(vertical = 6.dp, horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Indicador de estado
-                        Box(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .background(
-                                    color = when {
-                                        isCurrentLevel -> MaterialTheme.colorScheme.primary
-                                        isUnlocked -> MaterialTheme.colorScheme.secondary
-                                        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                                    },
-                                    shape = CircleShape
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isCurrentLevel) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                            } else {
-                                Text(
-                                    text = "${level.levelNumber}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = if (isUnlocked) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = level.displayName,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = if (isCurrentLevel) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isUnlocked) MaterialTheme.colorScheme.onSurface
-                                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                            )
-                            Text(
-                                text = "${level.requiredXp} XP requerido",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                            )
-                        }
-
-                        // Estado
-                        if (isCurrentLevel) {
-                            Text(
-                                text = "ACTUAL",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        } else if (isUnlocked) {
-                            Text(
-                                text = "✓",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-                    }
-
-                    if (level != TamashiLevel.entries.last()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // XP actual
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                            RoundedCornerShape(8.dp)
-                        )
-                        .padding(12.dp)
-                ) {
-                    Column {
-                        Text(
-                            text = "Tu progreso actual",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "XP Total: $currentXp",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        val nextLevel = TamashiLevel.getNextLevel(currentLevel)
-                        if (nextLevel != null) {
-                            Text(
-                                text = "Siguiente nivel: ${nextLevel.displayName} (${nextLevel.requiredXp - currentXp} XP restantes)",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                            )
-                        } else {
-                            Text(
-                                text = "¡Has alcanzado el nivel máximo! 🎉",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Tip
-                Text(
-                    text = "💡 Tip: Completa objetivos para ganar +1 XP cada uno.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Entendido", color = MaterialTheme.colorScheme.primary)
-            }
-        }
-    )
 }

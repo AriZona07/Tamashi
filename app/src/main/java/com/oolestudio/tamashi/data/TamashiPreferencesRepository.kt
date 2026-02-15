@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 private const val PREFS_NAME = "tamashi_prefs"
 private const val KEY_TAMASHI_NAME = "selected_tamashi_name"
+private const val KEY_USER_NAME = "user_name" // Clave para el nombre de usuario
 private const val KEY_TAMASHI_ASSET = "selected_tamashi_asset"
 private const val KEY_TAMASHI_CHOSEN = "is_tamashi_chosen"
 private const val KEY_TAMASHI_XP = "tamashi_xp"
@@ -75,12 +76,14 @@ class TamashiPreferencesRepository(context: Context) {
     private val xpFlow = MutableStateFlow(readXp())
     private val hatchedFlow = MutableStateFlow(isHatched())
     private val themeSettingFlow = MutableStateFlow(readThemeSetting())
+    private val userNameFlow = MutableStateFlow(readUserName()) // Flujo para el nombre de usuario
 
     fun flowSelectedTamashi(): Flow<TamashiProfile?> = selectedFlow.asStateFlow()
     fun flowIsTamashiChosen(): Flow<Boolean> = chosenFlow.asStateFlow()
     fun flowXp(): Flow<Int> = xpFlow.asStateFlow()
     fun flowIsHatched(): Flow<Boolean> = hatchedFlow.asStateFlow()
     fun flowThemeSetting(): Flow<ThemeSetting> = themeSettingFlow.asStateFlow()
+    fun flowUserName(): Flow<String> = userNameFlow.asStateFlow() // Exponer flujo de nombre de usuario
 
     /**
      * Obtiene el estado actual del Tamashi con su nivel y progreso
@@ -127,6 +130,8 @@ class TamashiPreferencesRepository(context: Context) {
         }
     }
 
+    private fun readUserName(): String = prefs.getString(KEY_USER_NAME, "Usuario") ?: "Usuario"
+
     fun hasSeenObjectiveTutorial(): Boolean = prefs.getBoolean(KEY_SEEN_OBJECTIVE_TUTORIAL, false)
 
     suspend fun setHasSeenObjectiveTutorial(seen: Boolean) {
@@ -144,6 +149,11 @@ class TamashiPreferencesRepository(context: Context) {
             .putString(KEY_TAMASHI_ASSET, profile.assetName)
             .apply()
         selectedFlow.value = profile
+    }
+
+    suspend fun setUserName(name: String) {
+        prefs.edit().putString(KEY_USER_NAME, name).apply()
+        userNameFlow.value = name
     }
 
     suspend fun setIsTamashiChosen(chosen: Boolean) {

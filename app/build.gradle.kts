@@ -58,6 +58,9 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.javax.annotation.api)
 
+    // ViewModel Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     // Material Icons
     implementation(libs.androidx.compose.material.icons.extended)
 
