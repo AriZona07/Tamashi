@@ -12,8 +12,8 @@ android {
         applicationId = "com.oolestudio.tamashi"
         minSdk = 24
         targetSdk = 36
-        versionCode = 3
-        versionName = "Alpha 1.2"
+        versionCode = 6
+        versionName = "Alpha 1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -26,7 +26,7 @@ android {
                 "proguard-rules.pro"
             )
 
-            // Simbolos de depuración nativos
+            // Símbolos de depuración nativa
             ndk.debugSymbolLevel = "SYMBOL_TABLE"
         }
     }
@@ -57,6 +57,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.javax.annotation.api)
+
+    // ViewModel Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // Material Icons
     implementation(libs.androidx.compose.material.icons.extended)

@@ -44,7 +44,7 @@ import com.oolestudio.tamashi.ui.components.CustomCheckbox
 import com.oolestudio.tamashi.ui.tutorial.TutorialOverlay
 import com.oolestudio.tamashi.util.tutorial.TutorialConfig
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
-import com.oolestudio.tamashi.viewmodel.tutorial.TutorialViewModel
+import com.oolestudio.tamashi.viewmodel.TutorialViewModel
 
 // Sealed class para la navegación interna dentro del detalle de la playlist.
 // Permite ver la lista de objetivos, añadir uno nuevo o editar uno existente.

@@ -54,6 +54,13 @@ class HomeViewModel(
     private val _hasSeenObjectiveTutorial = MutableStateFlow(tamashiPrefsRepository.hasSeenObjectiveTutorial())
     val hasSeenObjectiveTutorial: StateFlow<Boolean> = _hasSeenObjectiveTutorial.asStateFlow()
 
+    val userName: StateFlow<String> = tamashiPrefsRepository.flowUserName()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = "Usuario"
+        )
+
     fun setHasSeenObjectiveTutorial(seen: Boolean) {
         viewModelScope.launch {
             tamashiPrefsRepository.setHasSeenObjectiveTutorial(seen)

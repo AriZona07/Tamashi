@@ -5,23 +5,36 @@ import android.content.SharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.core.content.edit
 
 private const val PREFS_NAME = "tamashi_prefs"
 private const val KEY_TAMASHI_NAME = "selected_tamashi_name"
+private const val KEY_USER_NAME = "user_name" // Clave para el nombre de usuario
+private const val KEY_WELCOME_COMPLETED = "welcome_completed"
 private const val KEY_TAMASHI_ASSET = "selected_tamashi_asset"
 private const val KEY_TAMASHI_CHOSEN = "is_tamashi_chosen"
 private const val KEY_TAMASHI_XP = "tamashi_xp"
 private const val KEY_TAMASHI_HATCHED = "tamashi_hatched"
 private const val KEY_SEEN_OBJECTIVE_TUTORIAL = "seen_objective_tutorial"
+private const val KEY_THEME_SETTING = "theme_setting"
+
+/**
+ * Opciones de tema disponibles en la app.
+ */
+enum class ThemeSetting {
+    SYSTEM,
+    LIGHT,
+    DARK
+}
 
 /**
  * Representa los niveles de evolución del Tamashi
  */
 enum class TamashiLevel(val levelNumber: Int, val displayName: String, val requiredXp: Int, val animationRes: String) {
     BABY(1, "Bebé", 0, "ajolote"),           // Recién nacido
-    CHILD(2, "Niño", 10, "ajolote_child"),    // Primera evolución
-    YOUNG(3, "Joven", 30, "ajolote_young"),   // Segunda evolución
-    ADULT(4, "Adulto", 60, "ajolote_adult"),  // Tercera evolución
+    CHILD(2, "Niño", 2, "ajolote_child"),    // Primera evolución
+    YOUNG(3, "Joven", 10, "ajolote_young"),   // Segunda evolución
+    ADULT(4, "Adulto", 50, "ajolote_adult"),  // Tercera evolución
     MASTER(5, "Maestro", 100, "ajolote_master"); // Forma final
 
     companion object {
@@ -64,11 +77,17 @@ class TamashiPreferencesRepository(context: Context) {
     private val chosenFlow = MutableStateFlow(isTamashiChosen())
     private val xpFlow = MutableStateFlow(readXp())
     private val hatchedFlow = MutableStateFlow(isHatched())
+    private val themeSettingFlow = MutableStateFlow(readThemeSetting())
+    private val userNameFlow = MutableStateFlow(readUserName()) // Flujo para el nombre de usuario
+    private val welcomeCompletedFlow = MutableStateFlow(isWelcomeCompleted())
 
     fun flowSelectedTamashi(): Flow<TamashiProfile?> = selectedFlow.asStateFlow()
     fun flowIsTamashiChosen(): Flow<Boolean> = chosenFlow.asStateFlow()
     fun flowXp(): Flow<Int> = xpFlow.asStateFlow()
     fun flowIsHatched(): Flow<Boolean> = hatchedFlow.asStateFlow()
+    fun flowThemeSetting(): Flow<ThemeSetting> = themeSettingFlow.asStateFlow()
+    fun flowUserName(): Flow<String> = userNameFlow.asStateFlow() // Exponer flujo de nombres de usuario
+    fun flowWelcomeCompleted(): Flow<Boolean> = welcomeCompletedFlow.asStateFlow()
 
     /**
      * Obtiene el estado actual del Tamashi con su nivel y progreso
@@ -106,22 +125,50 @@ class TamashiPreferencesRepository(context: Context) {
 
     private fun isHatched(): Boolean = prefs.getBoolean(KEY_TAMASHI_HATCHED, false)
 
+    private fun isWelcomeCompleted(): Boolean = prefs.getBoolean(KEY_WELCOME_COMPLETED, false)
+
+    private fun readThemeSetting(): ThemeSetting {
+        val themeName = prefs.getString(KEY_THEME_SETTING, ThemeSetting.SYSTEM.name)
+        return try {
+            ThemeSetting.valueOf(themeName ?: ThemeSetting.SYSTEM.name)
+        } catch (e: IllegalArgumentException) {
+            ThemeSetting.SYSTEM
+        }
+    }
+
+    private fun readUserName(): String = prefs.getString(KEY_USER_NAME, "Usuario") ?: "Usuario"
+
     fun hasSeenObjectiveTutorial(): Boolean = prefs.getBoolean(KEY_SEEN_OBJECTIVE_TUTORIAL, false)
 
     suspend fun setHasSeenObjectiveTutorial(seen: Boolean) {
-        prefs.edit().putBoolean(KEY_SEEN_OBJECTIVE_TUTORIAL, seen).apply()
+        prefs.edit { putBoolean(KEY_SEEN_OBJECTIVE_TUTORIAL, seen) }
+    }
+
+    suspend fun setThemeSetting(theme: ThemeSetting) {
+        prefs.edit { putString(KEY_THEME_SETTING, theme.name) }
+        themeSettingFlow.value = theme
     }
 
     suspend fun setTamashi(profile: TamashiProfile) {
-        prefs.edit()
-            .putString(KEY_TAMASHI_NAME, profile.name)
-            .putString(KEY_TAMASHI_ASSET, profile.assetName)
-            .apply()
+        prefs.edit {
+            putString(KEY_TAMASHI_NAME, profile.name)
+                .putString(KEY_TAMASHI_ASSET, profile.assetName)
+        }
         selectedFlow.value = profile
     }
 
+    suspend fun setUserName(name: String) {
+        prefs.edit { putString(KEY_USER_NAME, name) }
+        userNameFlow.value = name
+    }
+
+    suspend fun setWelcomeCompleted(completed: Boolean) {
+        prefs.edit { putBoolean(KEY_WELCOME_COMPLETED, completed) }
+        welcomeCompletedFlow.value = completed
+    }
+
     suspend fun setIsTamashiChosen(chosen: Boolean) {
-        prefs.edit().putBoolean(KEY_TAMASHI_CHOSEN, chosen).apply()
+        prefs.edit { putBoolean(KEY_TAMASHI_CHOSEN, chosen) }
         chosenFlow.value = chosen
     }
 
@@ -132,7 +179,7 @@ class TamashiPreferencesRepository(context: Context) {
     suspend fun addXp(amount: Int = 1): Boolean {
         val previousLevel = TamashiLevel.fromXp(xpFlow.value)
         val newXp = xpFlow.value + amount
-        prefs.edit().putInt(KEY_TAMASHI_XP, newXp).apply()
+        prefs.edit { putInt(KEY_TAMASHI_XP, newXp) }
         xpFlow.value = newXp
         val newLevel = TamashiLevel.fromXp(newXp)
         return newLevel != previousLevel
@@ -144,7 +191,7 @@ class TamashiPreferencesRepository(context: Context) {
      */
     suspend fun removeXp(amount: Int = 1) {
         val newXp = (xpFlow.value - amount).coerceAtLeast(0)
-        prefs.edit().putInt(KEY_TAMASHI_XP, newXp).apply()
+        prefs.edit { putInt(KEY_TAMASHI_XP, newXp) }
         xpFlow.value = newXp
     }
 
@@ -152,7 +199,7 @@ class TamashiPreferencesRepository(context: Context) {
      * Marca que el Tamashi ha nacido
      */
     suspend fun setHatched(hatched: Boolean) {
-        prefs.edit().putBoolean(KEY_TAMASHI_HATCHED, hatched).apply()
+        prefs.edit { putBoolean(KEY_TAMASHI_HATCHED, hatched) }
         hatchedFlow.value = hatched
     }
 }

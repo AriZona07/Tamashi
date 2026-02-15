@@ -8,10 +8,11 @@ import androidx.compose.ui.graphics.Color
  * de Material Design 3.
  */
 
-// Color principal de fondo para la aplicación, un tono lila/morado suave.
-// El formato 0xFFRRGGBB especifica el canal alfa (FF = opaco) y los valores RGB en hexadecimal.
-val AppBackground = Color(0xFFb695c0)
+// --- Light Theme Colors ---
+val AppBackground = Color(0xFFE3F2FD) // Light Blue
+val OnAppBackground = Color(0xFF0D47A1) // Dark Blue
 
-// Color para el contenido (texto e iconos) que se muestra sobre `AppBackground`.
-// Es un tono oscuro para garantizar una buena legibilidad y contraste.
-val OnAppBackground = Color(0xFF1E1A1D)
+// --- Dark Theme Colors ---
+val AppBackgroundDark = Color(0xFF242424) // Un gris oscuro más claro
+val OnAppBackgroundDark = Color(0xFFE0E0E0) // Light Gray
+val SurfaceDark = Color(0xFF323232) // Un gris aún más claro para las superficies

@@ -2,6 +2,7 @@ package com.oolestudio.tamashi.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,12 +39,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.oolestudio.tamashi.data.Playlist
-import com.oolestudio.tamashi.ui.getIconForCategory
+import com.oolestudio.tamashi.util.getIconForCategory
 import com.oolestudio.tamashi.ui.screens.playlist.CreatePlaylistScreen
 import com.oolestudio.tamashi.ui.screens.playlist.PlaylistDetailScreen
 import com.oolestudio.tamashi.ui.tutorial.TutorialOverlay
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
-import com.oolestudio.tamashi.viewmodel.tutorial.TutorialViewModel
+import com.oolestudio.tamashi.viewmodel.TutorialViewModel
 import com.oolestudio.tamashi.data.tutorial.TutorialRepositoryImpl
 import com.oolestudio.tamashi.util.tutorial.TutorialConfig
 
@@ -187,7 +188,7 @@ private fun PlaylistListScreen(
                         homeViewModel.deletePlaylist(playlist.id)
                         playlistToDelete = null
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text("Eliminar")
                 }
@@ -274,12 +275,14 @@ private fun PlaylistItem(
             Icon(
                 imageVector = getIconForCategory(playlist.category),
                 contentDescription = "Categoría: ${playlist.category}",
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(32.dp),
+                tint = if (isSystemInDarkTheme()) Color.Black else MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = playlist.name,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = if (isSystemInDarkTheme()) Color.Black else MaterialTheme.colorScheme.onSurface
             )
         }
     }

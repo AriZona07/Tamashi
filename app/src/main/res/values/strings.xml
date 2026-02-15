@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Tamashi</string>
+
+    <!-- Theme Settings -->
+    <string name="settings_theme_title">Apariencia</string>
+    <string name="settings_theme_system">Predeterminado del sistema</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
 </resources>

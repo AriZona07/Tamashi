@@ -9,16 +9,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 /**
- * Pantalla de Calendario.
- * Aquí se mostrarán eventos o tareas organizadas por fecha.
+ * Pantalla de Historial.
+ * Aquí se mostrarán los eventos pasados.
  */
 @Composable
-fun CalendarScreen(modifier: Modifier = Modifier) {
+fun HistoryScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Pantalla de Calendario")
+        Text("Pantalla de Historial")
     }
 }

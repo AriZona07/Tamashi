@@ -1,4 +1,4 @@
-package com.oolestudio.tamashi.viewmodel
+package com.oolestudio.tamashi.viewmodel.tamashiselection
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,12 +13,11 @@ import kotlinx.coroutines.launch
 
 data class TamashiSelectionUiState(
     val options: List<TamashiProfile> = listOf(
-        TamashiProfile(name = "Bublu", assetName = "asset_tamashi_bublu")
+        TamashiProfile(name = "Bublu", assetName = "ajolote") // Asset actualizado
         // Agrega más Tamashis aquí, por ejemplo:
-        // TamashiProfile(name = "Kumo", assetName = "asset_tamashi_kumo")
+        // TamashiProfile(name = "Kumo", assetName = "kumo_asset")
     ),
-    val selected: TamashiProfile? = null,
-    val isChosen: Boolean = false
+    val selected: TamashiProfile? = null
 )
 
 class TamashiSelectionViewModel(
@@ -29,11 +28,9 @@ class TamashiSelectionViewModel(
 
     init {
         viewModelScope.launch {
-            val chosen = repo.flowIsTamashiChosen().first()
             val profile = repo.flowSelectedTamashi().first()
             _uiState.value = _uiState.value.copy(
-                selected = profile ?: _uiState.value.options.firstOrNull(),
-                isChosen = chosen
+                selected = profile ?: _uiState.value.options.firstOrNull()
             )
             // Sync a TutorialConfig si hay perfil
             profile?.let {
@@ -45,18 +42,5 @@ class TamashiSelectionViewModel(
 
     fun selectTamashi(profile: TamashiProfile) {
         _uiState.value = _uiState.value.copy(selected = profile)
-    }
-
-    fun confirmSelection(onConfirmed: (() -> Unit)? = null) {
-        val selected = _uiState.value.selected ?: return
-        viewModelScope.launch {
-            repo.setTamashi(selected)
-            repo.setIsTamashiChosen(true)
-            _uiState.value = _uiState.value.copy(isChosen = true)
-            // Actualiza configuración global
-            TutorialConfig.tamashiName = selected.name
-            TutorialConfig.tamashiAssetName = selected.assetName
-            onConfirmed?.invoke()
-        }
     }
 }

@@ -4,12 +4,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oolestudio.tamashi.data.Objective
 import com.oolestudio.tamashi.data.Playlist
 import com.oolestudio.tamashi.data.PlaylistRepository
 import com.oolestudio.tamashi.data.TamashiPreferencesRepository
 import com.oolestudio.tamashi.ui.screens.MainScreen
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
+import com.oolestudio.tamashi.viewmodel.HomeViewModelFactory
+import com.oolestudio.tamashi.viewmodel.theme.ThemeViewModel
+import com.oolestudio.tamashi.viewmodel.theme.ThemeViewModelFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -114,11 +118,20 @@ class FakePlaylistRepository : PlaylistRepository {
 @Composable
 @Preview
 fun AppPreview() {
-    App(
-        homeViewModel = HomeViewModel(
+    val context = LocalContext.current
+    val tamashiPrefsRepository = TamashiPreferencesRepository(context)
+    val homeViewModel: HomeViewModel = viewModel(
+        factory = HomeViewModelFactory(
             playlistRepository = FakePlaylistRepository(),
-            tamashiPrefsRepository = TamashiPreferencesRepository(LocalContext.current)
+            tamashiPrefsRepository = tamashiPrefsRepository
         )
+    )
+    val themeViewModel: ThemeViewModel = viewModel(
+        factory = ThemeViewModelFactory(tamashiPrefsRepository)
+    )
+    App(
+        homeViewModel = homeViewModel,
+        themeViewModel = themeViewModel
     )
 }
 
@@ -128,8 +141,8 @@ fun AppPreview() {
  * @param homeViewModel El ViewModel que gestiona la lógica de la pantalla principal.
  */
 @Composable
-fun App(homeViewModel: HomeViewModel) {
+fun App(homeViewModel: HomeViewModel, themeViewModel: ThemeViewModel) {
     MaterialTheme {
-        MainScreen(homeViewModel = homeViewModel)
+        MainScreen(homeViewModel = homeViewModel, themeViewModel = themeViewModel)
     }
 }

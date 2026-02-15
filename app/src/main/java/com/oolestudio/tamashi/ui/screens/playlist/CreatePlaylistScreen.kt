@@ -45,7 +45,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.oolestudio.tamashi.viewmodel.tutorial.TutorialViewModel
+import com.oolestudio.tamashi.ui.theme.PlaylistColors
+import com.oolestudio.tamashi.viewmodel.TutorialViewModel
 
 // Modelo de datos interno para las categorías disponibles en la UI.
 private data class Category(val name: String, val icon: ImageVector)
@@ -55,12 +56,6 @@ private val categories = listOf(
     Category("Salud Física", Icons.Default.FitnessCenter),
     Category("Salud Mental", Icons.Default.SelfImprovement),
     Category("Académico", Icons.Default.School)
-)
-
-// Paleta de colores predefinida para las playlists.
-private val colorOptions = listOf(
-    Color(0xFFFFFFFF), Color(0xFFF28B82), Color(0xFFFCCB40), Color(0xFFFFF475),
-    Color(0xFFCCFF90), Color(0xFFA7FFEB), Color(0xFFCBF0F8), Color(0xFFAFCBFA)
 )
 
 /**
@@ -77,7 +72,7 @@ fun CreatePlaylistScreen(
     // Estados del formulario.
     var playlistName by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
-    var selectedColor by remember { mutableStateOf(colorOptions.first()) } // Color por defecto: Blanco
+    var selectedColor by remember { mutableStateOf(PlaylistColors.colorOptions.first()) } // Color por defecto: Blanco
     var error by remember { mutableStateOf<String?>(null) }
 
     // Tutorial: paso actual para decidir resaltados
@@ -205,7 +200,7 @@ private fun ColorSelector(selectedColor: Color, onColorSelected: (Color) -> Unit
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            colorOptions.forEach { color ->
+            PlaylistColors.colorOptions.forEach { color ->
                 ColorOption(
                     color = color,
                     isSelected = selectedColor == color,

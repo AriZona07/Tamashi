@@ -1,4 +1,4 @@
-package com.oolestudio.tamashi.viewmodel.tutorial
+package com.oolestudio.tamashi.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

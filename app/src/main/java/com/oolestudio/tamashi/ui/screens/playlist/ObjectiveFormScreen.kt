@@ -1,9 +1,7 @@
 package com.oolestudio.tamashi.ui.screens.playlist
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,9 +9,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.oolestudio.tamashi.data.Objective
@@ -49,13 +43,7 @@ fun ObjectiveFormScreen(
     // Estados locales del formulario.
     var name by remember { mutableStateOf(existingObjective?.name ?: "") }
     var description by remember { mutableStateOf(existingObjective?.description ?: "") }
-    var showScheduleDialog by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-
-    // Diálogo temporal para funciones futuras.
-    if (showScheduleDialog) {
-        ComingSoonDialog(onDismiss = { showScheduleDialog = false })
-    }
 
     Scaffold(
         topBar = {
@@ -107,40 +95,9 @@ fun ObjectiveFormScreen(
                 maxLines = 4
             )
 
-            // Selector de repetición (aún no implementado funcionalmente).
-            ScheduleSelectorRow(onClick = { showScheduleDialog = true })
-
             error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
-}
-
-@Composable
-private fun ScheduleSelectorRow(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column {
-            Text("Repetir", style = MaterialTheme.typography.titleMedium)
-            Text("Nunca", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-        }
-        Icon(Icons.Default.ChevronRight, contentDescription = "Seleccionar repetición")
-    }
-}
-
-@Composable
-private fun ComingSoonDialog(onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Próximamente") },
-        text = { Text("La función para programar playlists y verlas en el calendario estará disponible en futuras versiones.") },
-        confirmButton = { Button(onClick = onDismiss) { Text("Aceptar") } }
-    )
 }
