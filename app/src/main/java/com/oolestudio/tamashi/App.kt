@@ -4,13 +4,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oolestudio.tamashi.data.Objective
 import com.oolestudio.tamashi.data.Playlist
 import com.oolestudio.tamashi.data.PlaylistRepository
 import com.oolestudio.tamashi.data.TamashiPreferencesRepository
 import com.oolestudio.tamashi.ui.screens.MainScreen
 import com.oolestudio.tamashi.viewmodel.HomeViewModel
+import com.oolestudio.tamashi.viewmodel.HomeViewModelFactory
 import com.oolestudio.tamashi.viewmodel.theme.ThemeViewModel
+import com.oolestudio.tamashi.viewmodel.theme.ThemeViewModelFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -117,12 +120,18 @@ class FakePlaylistRepository : PlaylistRepository {
 fun AppPreview() {
     val context = LocalContext.current
     val tamashiPrefsRepository = TamashiPreferencesRepository(context)
-    App(
-        homeViewModel = HomeViewModel(
+    val homeViewModel: HomeViewModel = viewModel(
+        factory = HomeViewModelFactory(
             playlistRepository = FakePlaylistRepository(),
             tamashiPrefsRepository = tamashiPrefsRepository
-        ),
-        themeViewModel = ThemeViewModel(tamashiPrefsRepository)
+        )
+    )
+    val themeViewModel: ThemeViewModel = viewModel(
+        factory = ThemeViewModelFactory(tamashiPrefsRepository)
+    )
+    App(
+        homeViewModel = homeViewModel,
+        themeViewModel = themeViewModel
     )
 }
 
